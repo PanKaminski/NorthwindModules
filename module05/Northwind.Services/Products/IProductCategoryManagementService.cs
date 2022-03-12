@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Northwind.Services.Entities;
 
 namespace Northwind.Services.Products
 {
@@ -13,28 +14,28 @@ namespace Northwind.Services.Products
         /// </summary>
         /// <param name="offset">An offset of the first element to return.</param>
         /// <param name="limit">A limit of elements to return.</param>
-        /// <returns>A <see cref="IAsyncEnumerable{T}"/> of <see cref="ProductCategory"/>.</returns>
-        IAsyncEnumerable<ProductCategory> GetCategoriesAsync(int offset, int limit);
+        /// <returns>A <see cref="IAsyncEnumerable{T}"/> of <see cref="Category"/>.</returns>
+        IAsyncEnumerable<Category> GetCategoriesAsync(int offset, int limit);
 
         /// <summary>
         /// Shows a list of product categories.
         /// </summary>
-        /// <returns>A <see cref="IAsyncEnumerable{T}"/> of <see cref="ProductCategory"/>.</returns>
-        IAsyncEnumerable<ProductCategory> GetCategoriesAsync();
+        /// <returns>A <see cref="IAsyncEnumerable{T}"/> of <see cref="Category"/>.</returns>
+        IAsyncEnumerable<Category> GetCategoriesAsync();
 
         /// <summary>
         /// Try to show a product category with specified identifier.
         /// </summary>
         /// <param name="categoryId">A product category identifier.</param>
         /// <returns>Returns true if a product category is returned; otherwise false.</returns>
-        Task<(bool, ProductCategory)> TryGetCategoryAsync(int categoryId);
+        Task<(bool, Category)> TryGetCategoryAsync(int categoryId);
 
         /// <summary>
         /// Creates a new product category.
         /// </summary>
-        /// <param name="productCategory">A <see cref="ProductCategory"/> to create.</param>
+        /// <param name="productCategory">A <see cref="Category"/> to create.</param>
         /// <returns>An identifier of a created product category.</returns>
-        Task<int> CreateCategoryAsync(ProductCategory productCategory);
+        Task<int> CreateCategoryAsync(Category productCategory);
 
         /// <summary>
         /// Destroys an existed product category.
@@ -48,7 +49,7 @@ namespace Northwind.Services.Products
         /// </summary>
         /// <param name="names">A list of product category names.</param>
         /// <returns>A collection of product categories with specified names.</returns>
-        IAsyncEnumerable<ProductCategory> GetCategoriesByNameAsync(IList<string> names);
+        IAsyncEnumerable<Category> GetCategoriesByNameAsync(IList<string> names);
 
         /// <summary>
         /// Updates a product category.
@@ -56,6 +57,6 @@ namespace Northwind.Services.Products
         /// <param name="categoryId">A product category identifier.</param>
         /// <param name="productCategory">A <see cref="ProductCategory"/>.</param>
         /// <returns>True if a product category is updated; otherwise false.</returns>
-        Task<bool> UpdateCategoryAsync(int categoryId, ProductCategory productCategory);
+        Task<bool> UpdateCategoryAsync(int categoryId, Category productCategory);
     }
 }

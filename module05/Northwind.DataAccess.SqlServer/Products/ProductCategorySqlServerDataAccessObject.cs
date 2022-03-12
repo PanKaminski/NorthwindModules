@@ -38,7 +38,7 @@ namespace Northwind.DataAccess.SqlServer.Products
 
             AddSqlParameters(productCategory, sqlCommand);
 
-            await this.connection.OpenAsync();
+            await this.OpenIfClosedAsync();
             return await sqlCommand.ExecuteNonQueryAsync();
         }
 
@@ -59,7 +59,7 @@ namespace Northwind.DataAccess.SqlServer.Products
             sqlCommand.Parameters.Add(categoryId, SqlDbType.Int);
             sqlCommand.Parameters[categoryId].Value = productCategoryId;
 
-            await this.connection.OpenAsync();
+            await this.OpenIfClosedAsync();
             return await sqlCommand.ExecuteNonQueryAsync() > 0;
         }
 
@@ -80,7 +80,7 @@ namespace Northwind.DataAccess.SqlServer.Products
             sqlCommand.Parameters.Add(categoryId, SqlDbType.Int);
             sqlCommand.Parameters[categoryId].Value = productCategoryId;
 
-            await this.connection.OpenAsync();
+            await this.OpenIfClosedAsync();
 
             var reader = await sqlCommand.ExecuteReaderAsync();
 
@@ -118,7 +118,7 @@ namespace Northwind.DataAccess.SqlServer.Products
             sqlCommand.Parameters.Add("@limit", SqlDbType.Int);
             sqlCommand.Parameters["@limit"].Value = limit;
 
-            await this.connection.OpenAsync();
+            await this.OpenIfClosedAsync();
 
             var reader = await sqlCommand.ExecuteReaderAsync();
 
@@ -136,7 +136,7 @@ namespace Northwind.DataAccess.SqlServer.Products
                 CommandType = CommandType.StoredProcedure,
             };
 
-            await this.connection.OpenAsync();
+            await this.OpenIfClosedAsync();
 
             var reader = await sqlCommand.ExecuteReaderAsync();
 
@@ -167,7 +167,7 @@ namespace Northwind.DataAccess.SqlServer.Products
             sqlCommand.Parameters.Add("@categoryNames", SqlDbType.NVarChar, 256);
             sqlCommand.Parameters["@categoryNames"].Value = string.Join(' ', productCategoryNames);
 
-            await this.connection.OpenAsync();
+            await this.OpenIfClosedAsync();
 
             var reader = await sqlCommand.ExecuteReaderAsync();
 
@@ -196,7 +196,7 @@ namespace Northwind.DataAccess.SqlServer.Products
             sqlCommand.Parameters.Add(categoryId, SqlDbType.Int);
             sqlCommand.Parameters[categoryId].Value = productCategory.Id;
 
-            await this.connection.OpenAsync();
+            await this.OpenIfClosedAsync();
             return await sqlCommand.ExecuteNonQueryAsync() > 0;
         }
 
@@ -235,6 +235,16 @@ namespace Northwind.DataAccess.SqlServer.Products
             command.Parameters.Add(pictureParameter, SqlDbType.Image);
             command.Parameters[pictureParameter].IsNullable = true;
             command.Parameters[pictureParameter].Value = productCategory.Picture is null ? DBNull.Value : productCategory.Picture;
+        }
+
+        private async Task OpenIfClosedAsync()
+        {
+            if (this.connection.State == ConnectionState.Open)
+            {
+                await this.connection.CloseAsync();
+            }
+
+            await this.connection.OpenAsync();
         }
     }
 }

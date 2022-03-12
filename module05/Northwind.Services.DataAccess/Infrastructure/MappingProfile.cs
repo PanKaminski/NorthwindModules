@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using Northwind.DataAccess.Employees;
 using Northwind.DataAccess.Products;
-using Northwind.Services.Employees;
-using Northwind.Services.Products;
+using Northwind.Services.Entities;
 
 namespace Northwind.Services.DataAccess.Infrastructure
 {
@@ -10,7 +9,7 @@ namespace Northwind.Services.DataAccess.Infrastructure
     {
         public MappingProfile()
         {
-            this.CreateMap<ProductCategoryTransferObject, ProductCategory>().ReverseMap();
+            this.CreateMap<ProductCategoryTransferObject, Category>().ReverseMap();
             this.CreateMap<ProductTransferObject, Product>().ReverseMap();
             this.CreateMap<EmployeeTransferObject, Employee>().ReverseMap();
         }

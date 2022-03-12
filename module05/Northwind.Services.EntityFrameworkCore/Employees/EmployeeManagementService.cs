@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Services.Employees;
-using Northwind.Services.EntityFrameworkCore.Data;
+using Northwind.Services.Entities;
+using Northwind.Services.EntityFrameworkCore.Context;
 
 namespace Northwind.Services.EntityFrameworkCore.Employees
 {

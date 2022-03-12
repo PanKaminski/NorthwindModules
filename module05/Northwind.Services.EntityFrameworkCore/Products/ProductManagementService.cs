@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Northwind.Services.EntityFrameworkCore.Data;
+using Northwind.Services.Entities;
+using Northwind.Services.EntityFrameworkCore.Context;
 using Northwind.Services.Products;
 
 namespace Northwind.Services.EntityFrameworkCore.Products

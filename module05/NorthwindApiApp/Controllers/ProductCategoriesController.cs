@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Northwind.Services.Entities;
 using Northwind.Services.Products;
 
 namespace NorthwindApiApp.Controllers
@@ -22,22 +23,22 @@ namespace NorthwindApiApp.Controllers
 
         [HttpGet("{offset:int}/{limit:int}")]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-        public IAsyncEnumerable<ProductCategory> GetAsync(int offset, int limit) =>
+        public IAsyncEnumerable<Category> GetAsync(int offset, int limit) =>
             this.productCategoryService.GetCategoriesAsync(offset, limit);
 
         [HttpGet]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-        public IAsyncEnumerable<ProductCategory> GetAsync() => this.productCategoryService.GetCategoriesAsync();
+        public IAsyncEnumerable<Category> GetAsync() => this.productCategoryService.GetCategoriesAsync();
 
         [HttpGet("names")]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-        public IAsyncEnumerable<ProductCategory> GetAsync(IList<string> names) =>
+        public IAsyncEnumerable<Category> GetAsync(IList<string> names) =>
             this.productCategoryService.GetCategoriesByNameAsync(names);
 
         [HttpGet ("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ProductCategory>> GetAsync(int id)
+        public async Task<ActionResult<Category>> GetAsync(int id)
         {
             if (id < 1)
             {
@@ -56,7 +57,7 @@ namespace NorthwindApiApp.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> CreateAsync(ProductCategory productCategory)
+        public async Task<ActionResult> CreateAsync(Category productCategory)
         {
             try
             {
@@ -80,7 +81,7 @@ namespace NorthwindApiApp.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> UpdateAsync(int id, ProductCategory productCategory)
+        public async Task<ActionResult> UpdateAsync(int id, Category productCategory)
         {
             if (productCategory is null)
             {

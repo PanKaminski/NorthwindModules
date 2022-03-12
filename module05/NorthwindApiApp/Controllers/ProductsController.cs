@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Northwind.Services.Entities;
 using Northwind.Services.Products;
 
 namespace NorthwindApiApp.Controllers

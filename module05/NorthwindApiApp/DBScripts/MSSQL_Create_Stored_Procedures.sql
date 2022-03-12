@@ -337,7 +337,7 @@ CREATE PROCEDURE [dbo].[Update_Product]
 	@productName nvarchar(40),
 	@supplierId int,
 	@categoryId int,
-	@quantityPerUnit int,
+	@quantityPerUnit nvarchar(20),
 	@unitPrice money,
 	@unitsInStock smallint,
 	@unitsOnOrder smallint,

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.Services.Employees;
+using Northwind.Services.Entities;
 
 namespace NorthwindApiApp.Controllers
 {

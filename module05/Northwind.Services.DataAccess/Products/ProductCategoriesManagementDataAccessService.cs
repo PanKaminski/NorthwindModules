@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Northwind.DataAccess;
 using Northwind.DataAccess.Products;
+using Northwind.Services.Entities;
 using Northwind.Services.Products;
 
 namespace Northwind.Services.DataAccess.Products
@@ -34,7 +35,7 @@ namespace Northwind.Services.DataAccess.Products
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<ProductCategory> GetCategoriesAsync(int offset, int limit)
+        public IAsyncEnumerable<Category> GetCategoriesAsync(int offset, int limit)
         {
             try
             {
@@ -45,32 +46,32 @@ namespace Northwind.Services.DataAccess.Products
                 return GetAsync(0, 0);
             }
 
-            async IAsyncEnumerable<ProductCategory> GetAsync(int skipped, int token)
+            async IAsyncEnumerable<Category> GetAsync(int skipped, int token)
             {
                 await foreach (var category in this.categoryDao.SelectProductCategoriesAsync(skipped, token))
                 {
-                    yield return this.mapper.Map<ProductCategory>(category);
+                    yield return this.mapper.Map<Category>(category);
                 }
             }
         }
 
         /// <inheritdoc/>
-        public async IAsyncEnumerable<ProductCategory> GetCategoriesAsync()
+        public async IAsyncEnumerable<Category> GetCategoriesAsync()
         {
             await foreach (var category in this.categoryDao.SelectProductCategoriesAsync())
             {
-                yield return this.mapper.Map<ProductCategory>(category);
+                yield return this.mapper.Map<Category>(category);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<(bool, ProductCategory)> TryGetCategoryAsync(int categoryId)
+        public async Task<(bool, Category)> TryGetCategoryAsync(int categoryId)
         {
             try
             {
                 var categoryDto = await this.categoryDao.FindProductCategoryAsync(categoryId);
 
-                return (true, this.mapper.Map<ProductCategory>(categoryDto));
+                return (true, this.mapper.Map<Category>(categoryDto));
             }
             catch (ProductCategoryNotFoundException)
             {
@@ -79,7 +80,7 @@ namespace Northwind.Services.DataAccess.Products
         }
 
         /// <inheritdoc/>
-        public async Task<int> CreateCategoryAsync(ProductCategory productCategory)
+        public async Task<int> CreateCategoryAsync(Category productCategory)
         {
             if (productCategory is null)
             {
@@ -100,7 +101,7 @@ namespace Northwind.Services.DataAccess.Products
             await this.categoryDao.DeleteProductCategoryAsync(categoryId);
 
         /// <inheritdoc/>
-        public async IAsyncEnumerable<ProductCategory> GetCategoriesByNameAsync(IList<string> names)
+        public async IAsyncEnumerable<Category> GetCategoriesByNameAsync(IList<string> names)
         {
             if (names is null || names.Count == 0)
             {
@@ -109,12 +110,12 @@ namespace Northwind.Services.DataAccess.Products
 
             await foreach (var category in this.categoryDao.SelectProductCategoriesByNameAsync(names))
             {
-                yield return this.mapper.Map<ProductCategory>(category);
+                yield return this.mapper.Map<Category>(category);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<bool> UpdateCategoryAsync(int categoryId, ProductCategory productCategory) =>
+        public async Task<bool> UpdateCategoryAsync(int categoryId, Category productCategory) =>
             await this.categoryDao.UpdateProductCategoryAsync(this.mapper.Map<ProductCategoryTransferObject>(productCategory));
     }
 }

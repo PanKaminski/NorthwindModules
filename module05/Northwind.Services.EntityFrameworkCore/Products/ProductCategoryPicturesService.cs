@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Northwind.Services.EntityFrameworkCore.Data;
+using Northwind.Services.EntityFrameworkCore.Context;
 using Northwind.Services.Products;
 
 namespace Northwind.Services.EntityFrameworkCore.Products
@@ -31,7 +31,7 @@ namespace Northwind.Services.EntityFrameworkCore.Products
                 throw new ArgumentNullException(nameof(stream));
             }
 
-            var category = await this.dbContext.ProductCategories.SingleOrDefaultAsync(c => c.Id == categoryId);
+            var category = await this.dbContext.Categories.SingleOrDefaultAsync(c => c.Id == categoryId);
 
             if (category is null)
             {
@@ -54,7 +54,7 @@ namespace Northwind.Services.EntityFrameworkCore.Products
         /// <inheritdoc/>
         public async Task<(bool, byte[])> TryGetPictureAsync(int categoryId)
         {
-            var productCategory = await this.dbContext.ProductCategories
+            var productCategory = await this.dbContext.Categories
                 .SingleOrDefaultAsync(c => c.Id == categoryId);
 
             if (productCategory.Picture is null || productCategory.Picture.Length == 0)
@@ -71,7 +71,7 @@ namespace Northwind.Services.EntityFrameworkCore.Products
         /// <inheritdoc/>
         public async Task<bool> DestroyPictureAsync(int categoryId)
         {
-            var category = await this.dbContext.ProductCategories.SingleOrDefaultAsync(c => c.Id == categoryId);
+            var category = await this.dbContext.Categories.SingleOrDefaultAsync(c => c.Id == categoryId);
 
             if (category is null)
             {

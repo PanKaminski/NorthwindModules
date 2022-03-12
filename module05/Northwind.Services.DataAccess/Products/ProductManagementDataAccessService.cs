@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Northwind.DataAccess;
 using Northwind.DataAccess.Products;
+using Northwind.Services.Entities;
 using Northwind.Services.Products;
 
 namespace Northwind.Services.DataAccess.Products
