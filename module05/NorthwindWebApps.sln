@@ -14,11 +14,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.DataAccess", "Nor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NorthwindApiApp", "NorthwindApiApp\NorthwindApiApp.csproj", "{8BA3FA53-6D24-4217-86D0-9F950859D5E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Services.EntityFrameworkCore", "Northwind.Services.EntityFrameworkCore\Northwind.Services.EntityFrameworkCore.csproj", "{595F8E30-E43F-42A3-B80D-4C23EAE6B4C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Services.EntityFrameworkCore", "Northwind.Services.EntityFrameworkCore\Northwind.Services.EntityFrameworkCore.csproj", "{595F8E30-E43F-42A3-B80D-4C23EAE6B4C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Services.DataAccess", "Northwind.Services.DataAccess\Northwind.Services.DataAccess.csproj", "{A602624A-4289-4789-98E3-A64D66E3870C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Services.DataAccess", "Northwind.Services.DataAccess\Northwind.Services.DataAccess.csproj", "{A602624A-4289-4789-98E3-A64D66E3870C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.DataAccess.SqlServer", "Northwind.DataAccess.SqlServer\Northwind.DataAccess.SqlServer.csproj", "{E36F26AF-69AA-491F-A2EC-8A4D5AC357A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.DataAccess.SqlServer", "Northwind.DataAccess.SqlServer\Northwind.DataAccess.SqlServer.csproj", "{E36F26AF-69AA-491F-A2EC-8A4D5AC357A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Services.EntityFrameworkCore.Blogging", "Northwind.Services.EntityFrameworkCore.Blogging\Northwind.Services.EntityFrameworkCore.Blogging.csproj", "{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +104,18 @@ Global
 		{E36F26AF-69AA-491F-A2EC-8A4D5AC357A8}.Release|x64.Build.0 = Release|Any CPU
 		{E36F26AF-69AA-491F-A2EC-8A4D5AC357A8}.Release|x86.ActiveCfg = Release|Any CPU
 		{E36F26AF-69AA-491F-A2EC-8A4D5AC357A8}.Release|x86.Build.0 = Release|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Debug|x64.Build.0 = Debug|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Debug|x86.Build.0 = Debug|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Release|x64.ActiveCfg = Release|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Release|x64.Build.0 = Release|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Release|x86.ActiveCfg = Release|Any CPU
+		{ABABAA30-9621-40EF-A5A6-3A037CFC5D7A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
