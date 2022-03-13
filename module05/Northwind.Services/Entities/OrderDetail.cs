@@ -12,7 +12,6 @@ namespace Northwind.Services.Entities
         [Column("OrderID")]
         public int OrderId { get; set; }
 
-        [Key]
         [Column("ProductID")]
         public int ProductId { get; set; }
 

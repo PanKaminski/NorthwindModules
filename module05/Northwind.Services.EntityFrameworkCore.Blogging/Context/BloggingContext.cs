@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Northwind.Services.EntityFrameworkCore.Blogging.Entities;
 
 namespace Northwind.Services.EntityFrameworkCore.Blogging.Context
@@ -12,7 +11,6 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Context
         }
 
         public DbSet<BlogArticle> BlogArticles { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

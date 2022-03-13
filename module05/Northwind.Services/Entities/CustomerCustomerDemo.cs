@@ -8,7 +8,6 @@ namespace Northwind.Services.Entities
     [Table("CustomerCustomerDemo")]
     public partial class CustomerCustomerDemo
     {
-        [Key]
         [Column("CustomerID")]
         [StringLength(5)]
         public string CustomerId { get; set; }
