@@ -157,11 +157,11 @@ $ dotnet ef database update --project Northwind.Services.EntityFrameworkCore.Blo
 
 | Operation        | HTTP Verb | URI                | Request body | Response body |
 | ---------------- | --------- | ------------------ | ------------ | ------------- |
-| Create           |           | /api/articles      |              |               |
-| Read (all items) |           | /api/articles      |              |               |
-| Read (item)      |           | /api/articles/{id} |              |               |
-| Update           |           | /api/articles/{id} |              |               |
-| Delete           |           | /api/articles/{id} |              |               |
+| Create           |  POST  | /api/articles      |  New Article            |  -             |
+| Read (all items) |  GET         | /api/articles      |  -            | Collection of articles              |
+| Read (item)      |  GET         | /api/articles/{id} |  -            |   Specified Article            |
+| Update           |  PUT         | /api/articles/{id} |  New values            |  -             |
+| Delete           |  DELETE         | /api/articles/{id} |  -            |  -             |
 
 9. Добавьте реализацию в _BlogArticle_, _IBloggingService_, _BloggingService_ и _BlogArticlesController_ для операции Create. Дата и время добавления статьи вычисляются автоматически на основе системного времени сервера, на котором происходит запуск back-end приложения.
 
@@ -240,9 +240,9 @@ Northwind.Services.EntityFrameworkCore.Blogging\Entities\BlogArticleProduct.cs
 
 | Operation                                           | HTTP Verb | URI                                      | Request body | Response body |
 | --------------------------------------------------- | --------- | ---------------------------------------- | ------------ | ------------- |
-| Return all related products                         |           | /api/articles/{article-id}/products      |              |               |
-| Create a link to a product for an article           |           | /api/articles/{article-id}/products/{id} |              |               |
-| Remove an existed link to a product from an article |           | /api/articles/{article-id}/products/{id} |              |               |
+| Return all related products                         |  GET         | /api/articles/{article-id}/products      |  -            |  Collection of products from article             |
+| Create a link to a product for an article           |  POST         | /api/articles/{article-id}/products/{id} |  -            |  -             |
+| Remove an existed link to a product from an article | DELETE          | /api/articles/{article-id}/products/{id} |  -            |   -            |
 
 4. Реализуйте функциональность.
 
@@ -264,10 +264,10 @@ Northwind.Services.EntityFrameworkCore.Blogging\Entities\BlogComment.cs
 
 | Operation        | HTTP Verb | URI                                      | Request body | Response body |
 | ---------------- | --------- | ---------------------------------------- | ------------ | ------------- |
-| Create           |           | /api/articles/{article-id}/comments      |              |               |
-| Read (all items) |           | /api/articles/{article-id}/comments      |              |               |
-| Update           |           | /api/articles/{article-id}/comments/{id} |              |               |
-| Delete           |           | /api/articles/{article-id}/comments/{id} |              |               |
+| Create           |  POST         | /api/articles/{article-id}/comments      |   New comment           |  -             |
+| Read (all items) |  GET         | /api/articles/{article-id}/comments      | -             | Collection of comments for article              |
+| Update           |  PUT         | /api/articles/{article-id}/comments/{id} | New comment text             |   -            |
+| Delete           | DELETE          | /api/articles/{article-id}/comments/{id} |  -            | -              | 
 
 4. Реализуйте функциональность.
 
