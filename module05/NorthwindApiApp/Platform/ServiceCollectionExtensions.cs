@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Northwind.DataAccess.SqlServer;
 using Northwind.Services.Blogging;
+using Northwind.Services.Customers;
 using Northwind.Services.Employees;
 using Northwind.Services.EntityFrameworkCore.Blogging;
 using Northwind.Services.EntityFrameworkCore.Blogging.Context;
@@ -41,6 +42,8 @@ namespace NorthwindApiApp.Platform
                             ProductCategoryPicturesService>()
                         .AddTransient<IEmployeeManagementService,
                             Northwind.Services.EntityFrameworkCore.Employees.EmployeeManagementService>()
+                        .AddTransient<ICustomersManagementService,
+                            Northwind.Services.EntityFrameworkCore.Customers.CustomersManagementService>()
                         .AddTransient<IBloggingService, BloggingService>()
                         .AddDbContext<NorthwindContext>(opt =>
                             opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection")))

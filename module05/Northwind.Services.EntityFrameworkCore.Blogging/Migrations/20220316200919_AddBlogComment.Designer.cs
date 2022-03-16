@@ -10,7 +10,7 @@ using Northwind.Services.EntityFrameworkCore.Blogging.Context;
 namespace Northwind.Services.EntityFrameworkCore.Blogging.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    [Migration("20220316162726_AddBlogComment")]
+    [Migration("20220316200919_AddBlogComment")]
     partial class AddBlogComment
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -91,8 +91,9 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Migrations
                     b.Property<int?>("BlogArticleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int")
+                    b.Property<string>("CustomerId")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)")
                         .HasColumnName("customer_id");
 
                     b.Property<string>("Text")

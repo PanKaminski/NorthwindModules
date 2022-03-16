@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.Services.Blogging;
+using Northwind.Services.Customers;
 using Northwind.Services.Employees;
 using Northwind.Services.Entities;
 using Northwind.Services.Products;
@@ -16,14 +17,16 @@ namespace NorthwindApiApp.Controllers
     {
         private readonly IEmployeeManagementService employeeService;
         private readonly IProductManagementService productService;
+        private readonly ICustomersManagementService customerService;
         private readonly IBloggingService bloggingService;
 
-        public BlogArticlesController(IEmployeeManagementService employeeService,
-            IBloggingService bloggingService, IProductManagementService productService)
+        public BlogArticlesController(IEmployeeManagementService employeeService, IBloggingService bloggingService, 
+            IProductManagementService productService, ICustomersManagementService customerService)
         {
             this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
             this.bloggingService = bloggingService ?? throw new ArgumentNullException(nameof(bloggingService));
             this.productService = productService ?? throw new ArgumentNullException(nameof(productService));
+            this.customerService = customerService ?? throw new ArgumentNullException(nameof(customerService));
         }
 
         [HttpGet("{offset:int}/{limit:int}")]
@@ -144,6 +147,11 @@ namespace NorthwindApiApp.Controllers
         public async Task<ActionResult> CreateCommentAsync(int articleId, BlogComment comment)
         {
             if (articleId < 1 || comment is null)
+            {
+                return this.BadRequest();
+            }
+
+            if (!(await this.customerService.DoesExist(comment.CustomerId)))
             {
                 return this.BadRequest();
             }

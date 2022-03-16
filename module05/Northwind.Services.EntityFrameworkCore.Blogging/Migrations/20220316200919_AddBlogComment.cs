@@ -12,7 +12,7 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Migrations
                 {
                     blog_comment_id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    customer_id = table.Column<int>(type: "int", nullable: false),
+                    customer_id = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: true),
                     article_id = table.Column<int>(type: "int", nullable: false),
                     text = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     BlogArticleId = table.Column<int>(type: "int", nullable: true)

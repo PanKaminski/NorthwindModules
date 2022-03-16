@@ -89,8 +89,9 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Migrations
                     b.Property<int?>("BlogArticleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int")
+                    b.Property<string>("CustomerId")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)")
                         .HasColumnName("customer_id");
 
                     b.Property<string>("Text")

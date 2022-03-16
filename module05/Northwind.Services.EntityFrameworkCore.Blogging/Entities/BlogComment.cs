@@ -10,7 +10,8 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Entities
         public int Id { get; set; }
 
         [Column("customer_id")]
-        public int CustomerId { get; set; }
+        [StringLength(5)]
+        public string CustomerId { get; set; }
 
         [Column("article_id")]
         public int ArticleId { get; set; }
