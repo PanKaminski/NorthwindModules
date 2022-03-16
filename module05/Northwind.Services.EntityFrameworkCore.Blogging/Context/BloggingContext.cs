@@ -12,6 +12,8 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Context
 
         public DbSet<BlogArticle> BlogArticles { get; set; }
 
+        public DbSet<BlogArticleProduct> RelatedProducts { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

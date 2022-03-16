@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Northwind.Services.EntityFrameworkCore.Blogging.Entities
@@ -19,5 +20,7 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Entities
 
         [Column("employee_id")]
         public int EmployeeId { get; set; }
+
+        public ICollection<BlogArticleProduct> RelatedProducts { get; set; } = new List<BlogArticleProduct>();
     }
 }

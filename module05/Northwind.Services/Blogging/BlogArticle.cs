@@ -1,6 +1,6 @@
 ﻿namespace Northwind.Services.Blogging
 {
-    public class BlogArticleClientModel
+    public class BlogArticle
     {
         public int Id { get; set; }
 

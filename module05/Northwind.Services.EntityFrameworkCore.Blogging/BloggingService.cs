@@ -6,7 +6,6 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Services.Blogging;
 using Northwind.Services.EntityFrameworkCore.Blogging.Context;
-using Northwind.Services.EntityFrameworkCore.Blogging.Entities;
 
 namespace Northwind.Services.EntityFrameworkCore.Blogging
 {
@@ -30,35 +29,35 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<BlogArticleClientModel> GetBlogArticlesAsync()
+        public IAsyncEnumerable<BlogArticle> GetBlogArticlesAsync()
         {
             return this.dbContext.BlogArticles
-                .Select(a => this.mapper.Map<BlogArticleClientModel>(a))
+                .Select(a => this.mapper.Map<BlogArticle>(a))
                 .AsAsyncEnumerable();
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<BlogArticleClientModel> GetBlogArticlesAsync(int offset, int limit)
+        public IAsyncEnumerable<BlogArticle> GetBlogArticlesAsync(int offset, int limit)
         {
             return this.dbContext.BlogArticles
                 .Skip(offset)
                 .Take(limit)
-                .Select(a => this.mapper.Map<BlogArticleClientModel>(a))
+                .Select(a => this.mapper.Map<BlogArticle>(a))
                 .AsAsyncEnumerable();
         }
 
         /// <inheritdoc/>
-        public async Task<(bool, BlogArticleClientModel)> TryGetBlogArticleAsync(int articleId)
+        public async Task<(bool, BlogArticle)> TryGetBlogArticleAsync(int articleId)
         {
             var article = await this.dbContext.BlogArticles.FindAsync(articleId);
 
-            return article is null ? (false, null) : (true, this.mapper.Map<BlogArticleClientModel>(article));
+            return article is null ? (false, null) : (true, this.mapper.Map<BlogArticle>(article));
         }
 
         /// <inheritdoc/>
-        public async Task<int> CreateArticleAsync(BlogArticleClientModel articleDto)
+        public async Task<int> CreateArticleAsync(BlogArticle articleDto)
         {
-            var article = this.mapper.Map<BlogArticle>(articleDto);
+            var article = this.mapper.Map<Entities.BlogArticle>(articleDto);
             article.PublicationDate = DateTime.Now;
 
             await this.dbContext.BlogArticles.AddAsync(article);
@@ -86,7 +85,7 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
-        public async Task<bool> UpdateBlogArticleAsync(int articleId, BlogArticleClientModel articleDto)
+        public async Task<bool> UpdateBlogArticleAsync(int articleId, BlogArticle articleDto)
         {
             if (articleDto is null)
             {
@@ -104,6 +103,83 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             article.Content = articleDto.Text;
 
             return await this.dbContext.SaveChangesAsync() > 0;
+        }
+
+        /// <inheritdoc/>
+        public async IAsyncEnumerable<int> GetRelatedProducts(int articleId)
+        {
+            var articles = await this.dbContext.BlogArticles
+                .Include(ba => ba.RelatedProducts)
+                .ToListAsync();
+
+            var article = articles.Find(a => a.Id == articleId);
+
+            if (article is null)
+            {
+                yield break;
+            }
+
+            foreach (var productId in article.RelatedProducts.Select(rp => rp.ProductId))
+            {
+                yield return productId;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> CreateLinkToProduct(int articleId, int productId)
+        {
+            var article = await this.dbContext.BlogArticles.FindAsync(articleId);
+
+            if (article is null)
+            {
+                return false;
+            }
+
+            var productLinks = await this.dbContext.RelatedProducts
+                .Include(rp => rp.BlogArticles)
+                .ToListAsync();
+
+            var productLink = productLinks.FirstOrDefault(pl => pl.ProductId == productId);
+
+            if (productLink is null)
+            {
+                productLink = new Entities.BlogArticleProduct { ProductId = productId, };
+
+                await this.dbContext.RelatedProducts.AddAsync(productLink);
+            }
+
+            productLink.BlogArticles.Add(article);
+
+            await this.dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> RemoveLinkToProduct(int articleId, int productId)
+        {
+            var articles = await this.dbContext.BlogArticles
+                .Include(ba => ba.RelatedProducts)
+                .ToListAsync();
+
+            var article = articles.Find(a => a.Id == articleId);
+
+            if (article is null)
+            {
+                return false;
+            }
+
+            var productLink = await this.dbContext.RelatedProducts.FindAsync(productId);
+
+            if (productLink is null)
+            {
+                return false;
+            }
+
+            var result = article.RelatedProducts.Remove(productLink);
+            await this.dbContext.SaveChangesAsync();
+
+            return result;
         }
     }
 }
