@@ -89,6 +89,18 @@ namespace NorthwindApiApp.Controllers
             }
         }
 
+        [HttpGet("{articleId}/comments")]
+        public IAsyncEnumerable<BlogComment> GetCommentsAsync(int articleId)
+        {
+            return this.bloggingService.GetBlogArticleCommentsAsync(articleId);
+        }
+
+        [HttpGet("{articleId}/comments/{offset:int}/{limit:int}")]
+        public IAsyncEnumerable<BlogComment> GetCommentsAsync(int articleId, int offset, int limit)
+        {
+            return this.bloggingService.GetBlogArticleCommentsAsync(articleId, offset, limit);
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> CreateAsync(BlogArticle article)
@@ -127,6 +139,21 @@ namespace NorthwindApiApp.Controllers
             return this.Ok();
         }
 
+        [HttpPost("{articleId}/comments")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> CreateCommentAsync(int articleId, BlogComment comment)
+        {
+            if (articleId < 1 || comment is null)
+            {
+                return this.BadRequest();
+            }
+
+            var id = await this.bloggingService.CreateBlogArticleCommentAsync(articleId, comment);
+
+            return this.Ok(id);
+        }
+
+
         [HttpDelete("{articleId}/products/{productId}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> RemoveProductLinkAsync(int articleId, int productId)
@@ -137,6 +164,23 @@ namespace NorthwindApiApp.Controllers
             }
 
             if (!(await this.bloggingService.RemoveLinkToProduct(articleId, productId)))
+            {
+                return this.BadRequest();
+            }
+
+            return this.Ok();
+        }
+
+        [HttpDelete("{articleId}/comments/{commentId}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> RemoveCommentAsync(int articleId, int commentId)
+        {
+            if (articleId < 1 || commentId < 1)
+            {
+                return this.BadRequest();
+            }
+
+            if (!(await this.bloggingService.DestroyBlogCommentAsync(articleId, commentId)))
             {
                 return this.BadRequest();
             }
@@ -156,6 +200,25 @@ namespace NorthwindApiApp.Controllers
             }
 
             if (await this.bloggingService.UpdateBlogArticleAsync(id, blogArticle))
+            {
+                return this.NoContent();
+            }
+
+            return this.NotFound();
+        }
+
+        [HttpPut("{articleId}/comments/{commentId}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> UpdateCommentAsync(int articleId, int commentId, BlogComment comment)
+        {
+            if (comment is null)
+            {
+                return this.BadRequest();
+            }
+
+            if (await this.bloggingService.UpdateBlogCommentAsync(articleId, commentId, comment))
             {
                 return this.NoContent();
             }

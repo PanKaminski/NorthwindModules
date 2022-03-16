@@ -22,5 +22,7 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Entities
         public int EmployeeId { get; set; }
 
         public ICollection<BlogArticleProduct> RelatedProducts { get; set; } = new List<BlogArticleProduct>();
+
+        public ICollection<BlogComment> BlogArticleComments { get; set; } = new List<BlogComment>();
     }
 }

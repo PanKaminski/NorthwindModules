@@ -47,6 +47,26 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
+        public IAsyncEnumerable<BlogComment> GetBlogArticleCommentsAsync(int articleId)
+        {
+            return this.dbContext.BlogArticleComments
+                .Where(c => c.ArticleId == articleId)
+                .Select(c => this.mapper.Map<BlogComment>(c))
+                .AsAsyncEnumerable();
+        }
+
+        /// <inheritdoc/>
+        public IAsyncEnumerable<BlogComment> GetBlogArticleCommentsAsync(int articleId, int offset, int limit)
+        {
+            return this.dbContext.BlogArticleComments
+                .Where(c => c.ArticleId == articleId)
+                .Skip(offset)
+                .Take(limit)
+                .Select(c => this.mapper.Map<BlogComment>(c))
+                .AsAsyncEnumerable();
+        }
+
+        /// <inheritdoc/>
         public async Task<(bool, BlogArticle)> TryGetBlogArticleAsync(int articleId)
         {
             var article = await this.dbContext.BlogArticles.FindAsync(articleId);
@@ -69,6 +89,28 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
+        public async Task<int> CreateBlogArticleCommentAsync(int articleId, BlogComment comment)
+        {
+            var article = await this.dbContext.BlogArticles.FindAsync(articleId);
+
+            if (article is null)
+            {
+                return -1;
+            }
+
+            var blogCommentDto = this.mapper.Map<Entities.BlogComment>(comment);
+            blogCommentDto.ArticleId = articleId;
+            blogCommentDto.BlogArticle = article;
+
+            await this.dbContext.BlogArticleComments.AddAsync(blogCommentDto);
+            await this.dbContext.SaveChangesAsync();
+
+            return (await this.dbContext.BlogArticleComments.OrderBy(bc => bc.Id)
+                    .LastAsync(bc => bc.ArticleId == articleId && bc.CustomerId == comment.CustomerId))
+                .Id;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> DestroyBlogArticleAsync(int articleId)
         {
             var article = await this.dbContext.BlogArticles.FindAsync(articleId);
@@ -82,6 +124,29 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             await this.dbContext.SaveChangesAsync();
 
             return deleted.Entity.Id == articleId;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> DestroyBlogCommentAsync(int articleId, int commentId)
+        {
+            var article = await this.dbContext.BlogArticles.FindAsync(articleId);
+
+            if (article is null)
+            {
+                return false;
+            }
+
+            var comment = await this.dbContext.BlogArticleComments.FindAsync(commentId);
+
+            if (comment is null)
+            {
+                return false;
+            }
+
+            var result = this.dbContext.BlogArticleComments.Remove(comment);
+            await this.dbContext.SaveChangesAsync();
+
+            return result.Entity.Id == commentId;
         }
 
         /// <inheritdoc/>
@@ -102,6 +167,27 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             article.Title = articleDto.Title;
             article.Content = articleDto.Text;
 
+            return await this.dbContext.SaveChangesAsync() > 0;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> UpdateBlogCommentAsync(int articleId, int commentId, BlogComment comment)
+        {
+            var article = await this.dbContext.BlogArticles.FindAsync(articleId);
+
+            if (article is null)
+            {
+                return false;
+            }
+
+            var oldComment = await this.dbContext.BlogArticleComments.FindAsync(commentId);
+
+            if (comment is null)
+            {
+                return false;
+            }
+
+            oldComment.Text = comment.Text;
             return await this.dbContext.SaveChangesAsync() > 0;
         }
 
