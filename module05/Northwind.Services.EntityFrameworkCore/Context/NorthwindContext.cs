@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Northwind.Services.Entities;
+using Northwind.Services.EntityFrameworkCore.Entities;
 
 #nullable disable
 

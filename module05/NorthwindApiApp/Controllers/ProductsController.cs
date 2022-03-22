@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Northwind.Services.Entities;
 using Northwind.Services.Products;
 
 namespace NorthwindApiApp.Controllers
@@ -85,11 +84,6 @@ namespace NorthwindApiApp.Controllers
         public async Task<ActionResult> UpdateAsync(int id, Product product)
         {
             if (product is null)
-            {
-                return this.BadRequest();
-            }
-
-            if (id != product.Id)
             {
                 return this.BadRequest();
             }

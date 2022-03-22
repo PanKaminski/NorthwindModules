@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Services.Employees;
-using Northwind.Services.Entities;
 using Northwind.Services.EntityFrameworkCore.Context;
 
 namespace Northwind.Services.EntityFrameworkCore.Employees
@@ -15,35 +15,37 @@ namespace Northwind.Services.EntityFrameworkCore.Employees
     public class EmployeeManagementService : IEmployeeManagementService
     {
         private readonly NorthwindContext dbContext;
+        private readonly IMapper mapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmployeeManagementService"/> class.
         /// </summary>
         /// <param name="dbContext">Database context.</param>
-        public EmployeeManagementService(NorthwindContext dbContext)
+        public EmployeeManagementService(NorthwindContext dbContext, IMapper mapper)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.mapper = mapper;
         }
 
         /// <inheritdoc/>
         public IAsyncEnumerable<Employee> GetEmployeesAsync()
         {
-            return this.dbContext.Employees.AsAsyncEnumerable();
+            return this.dbContext.Employees.Select(e => this.mapper.Map<Employee>(e)).AsAsyncEnumerable();
         }
 
         /// <inheritdoc/>
         public IAsyncEnumerable<Employee> GetEmployeesAsync(int offset, int limit)
         {
-            return this.dbContext.Employees.Skip(offset).Take(limit).AsAsyncEnumerable();
+            return this.dbContext.Employees.Skip(offset).Take(limit).Select(e => this.mapper.Map<Employee>(e)).AsAsyncEnumerable();
         }
 
         /// <inheritdoc/>
         public async Task<(bool, Employee)> TryGetEmployeeAsync(int employeeId)
         {
-            var employee = this.dbContext.Employees
+            var employee = await this.dbContext.Employees
                 .SingleOrDefaultAsync(c => c.Id == employeeId);
 
-            return (employee != null, await employee);
+            return (employee != null, this.mapper.Map<Employee>(employee));
         }
 
         /// <inheritdoc/>
@@ -54,15 +56,17 @@ namespace Northwind.Services.EntityFrameworkCore.Employees
                 return -1;
             }
 
-            if (await this.dbContext.Employees.ContainsAsync(employee))
+            var employeeEntity = this.mapper.Map<Entities.Employee>(employee);
+
+            if (await this.dbContext.Employees.ContainsAsync(employeeEntity))
             {
                 return -1;
             }
 
-            await this.dbContext.Employees.AddAsync(employee);
+            await this.dbContext.Employees.AddAsync(employeeEntity);
             await this.dbContext.SaveChangesAsync();
 
-            return employee.Id;
+            return employeeEntity.Id;
         }
 
         /// <inheritdoc/>
@@ -89,21 +93,21 @@ namespace Northwind.Services.EntityFrameworkCore.Employees
                 return false;
             }
 
-            var productToChange = await this.dbContext.Employees.SingleAsync(c => c.Id == employeeId);
+            var employeeToChange = await this.dbContext.Employees.SingleAsync(c => c.Id == employeeId);
 
-            if (productToChange is null)
+            if (employeeToChange is null)
             {
                 return false;
             }
 
-            Map(productToChange, employee);
+            Map(employeeToChange, employee);
 
             await this.dbContext.SaveChangesAsync();
 
             return true;
         }
 
-        private static void Map(Employee productToChange, Employee source)
+        private static void Map(Entities.Employee productToChange, Employee source)
         {
             productToChange.FirstName = source.FirstName;
             productToChange.LastName = source.LastName;

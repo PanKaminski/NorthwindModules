@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.Services.Employees;
-using Northwind.Services.Entities;
 
 namespace NorthwindApiApp.Controllers
 {
@@ -77,11 +76,6 @@ namespace NorthwindApiApp.Controllers
         public async Task<ActionResult> UpdateAsync(int id, Employee employee)
         {
             if (employee is null)
-            {
-                return this.BadRequest();
-            }
-
-            if (id != employee.Id)
             {
                 return this.BadRequest();
             }

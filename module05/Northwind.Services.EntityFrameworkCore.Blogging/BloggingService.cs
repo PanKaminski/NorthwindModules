@@ -83,9 +83,7 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             await this.dbContext.BlogArticles.AddAsync(article);
             await this.dbContext.SaveChangesAsync();
 
-            return (await this.dbContext.BlogArticles.OrderBy(a => a.Id)
-                .LastAsync(a => a.Title == article.Title && a.Content == article.Content && a.EmployeeId == article.EmployeeId))
-                .Id;
+            return article.Id;
         }
 
         /// <inheritdoc/>
@@ -105,9 +103,7 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             await this.dbContext.BlogArticleComments.AddAsync(blogCommentDto);
             await this.dbContext.SaveChangesAsync();
 
-            return (await this.dbContext.BlogArticleComments.OrderBy(bc => bc.Id)
-                    .LastAsync(bc => bc.ArticleId == articleId && bc.CustomerId == comment.CustomerId))
-                .Id;
+            return blogCommentDto.Id;
         }
 
         /// <inheritdoc/>

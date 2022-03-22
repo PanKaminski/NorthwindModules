@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Northwind.Services.Entities;
 using Northwind.Services.EntityFrameworkCore.Context;
+using Northwind.Services.EntityFrameworkCore.Entities;
 using Northwind.Services.Products;
 
 namespace Northwind.Services.EntityFrameworkCore.Products
@@ -15,69 +16,80 @@ namespace Northwind.Services.EntityFrameworkCore.Products
     public class ProductCategoryManagementService : IProductCategoryManagementService
     {
         private readonly NorthwindContext dbContext;
+        private readonly IMapper mapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductCategoryManagementService"/> class.
         /// </summary>
         /// <param name="dbContext">Database access layer.</param>
-        public ProductCategoryManagementService(NorthwindContext dbContext)
+        public ProductCategoryManagementService(NorthwindContext dbContext, IMapper mapper)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         /// <inheritdoc/>
-        public async Task<int> CreateCategoryAsync(Category productCategory)
+        public async Task<int> CreateCategoryAsync(ProductCategory productCategory)
         {
             if (productCategory is null)
             {
                 return -1;
             }
 
-            if (await this.dbContext.Categories.ContainsAsync(productCategory))
+            var categoryEntity = this.mapper.Map<Category>(productCategory);
+
+            if (await this.dbContext.Categories.ContainsAsync(categoryEntity))
             {
                 return -1;
             }
 
-            await this.dbContext.Categories.AddAsync(productCategory);
+            await this.dbContext.Categories.AddAsync(categoryEntity);
             await this.dbContext.SaveChangesAsync();
 
-            return productCategory.Id;
+            return categoryEntity.Id;
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<Category> GetCategoriesByNameAsync(IList<string> names) =>
+        public IAsyncEnumerable<ProductCategory> GetCategoriesByNameAsync(IList<string> names) =>
             this.dbContext.Categories
                 .Where(c => names.Contains(c.Name))
+                .Select(c => this.mapper.Map<ProductCategory>(c))
                 .AsAsyncEnumerable();
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<Category> GetCategoriesAsync(int offset, int limit)
+        public IAsyncEnumerable<ProductCategory> GetCategoriesAsync(int offset, int limit)
         {
-            return this.dbContext.Categories.Skip(offset).Take(limit).AsAsyncEnumerable();
+            return this.dbContext.Categories
+                .Skip(offset)
+                .Take(limit)
+                .Select(c => this.mapper.Map<ProductCategory>(c))
+                .AsAsyncEnumerable();
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<Category> GetCategoriesAsync()
+        public IAsyncEnumerable<ProductCategory> GetCategoriesAsync()
         {
-            return this.dbContext.Categories.AsAsyncEnumerable();
+            return this.dbContext.Categories.Select(c => this.mapper.Map<ProductCategory>(c)).AsAsyncEnumerable();
         }
 
         /// <inheritdoc/>
-        public async Task<(bool, Category)> TryGetCategoryAsync(int categoryId)
+        public async Task<(bool, ProductCategory)> TryGetCategoryAsync(int categoryId)
         {
-            var productCategory = this.dbContext.Categories
+            var productCategory = await this.dbContext.Categories
                 .SingleOrDefaultAsync(c => c.Id == categoryId);
 
-            return (productCategory != null, await productCategory);
+            return (productCategory != null, this.mapper.Map<ProductCategory>(productCategory));
         }
 
         /// <inheritdoc/>
-        public async Task<bool> UpdateCategoryAsync(int categoryId, Category productCategory)
+        public async Task<bool> UpdateCategoryAsync(int categoryId, ProductCategory productCategory)
         {
             if (productCategory is null)
             {
                 return false;
             }
+
+            var categoryEntity = this.mapper.Map<Category>(productCategory);
 
             var category = await this.dbContext.Categories.SingleAsync(c => c.Id == categoryId);
 
@@ -86,9 +98,10 @@ namespace Northwind.Services.EntityFrameworkCore.Products
                 return false;
             }
 
-            category.Name = productCategory.Name;
-            category.Description = productCategory.Description;
-            category.Picture = productCategory.Picture;
+            category.Name = categoryEntity.Name;
+            category.Description = categoryEntity.Description;
+            category.Picture = categoryEntity.Picture;
+
             await this.dbContext.SaveChangesAsync();
 
             return true;
