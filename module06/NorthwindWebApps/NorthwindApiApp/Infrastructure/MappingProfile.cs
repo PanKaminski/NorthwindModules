@@ -2,8 +2,10 @@
 using Northwind.DataAccess.Employees;
 using Northwind.DataAccess.Products;
 using Northwind.Services.Blogging;
-using Northwind.Services.Entities;
+using Northwind.Services.EntityFrameworkCore.Entities;
+using Northwind.Services.Products;
 using BlogArticle = Northwind.Services.Blogging.BlogArticle;
+using Product = Northwind.Services.EntityFrameworkCore.Entities.Product;
 
 namespace NorthwindApiApp.Infrastructure
 {
@@ -11,9 +13,16 @@ namespace NorthwindApiApp.Infrastructure
     {
         public MappingProfile()
         {
-            this.CreateMap<ProductCategoryTransferObject, Category>().ReverseMap();
-            this.CreateMap<ProductTransferObject, Product>().ReverseMap();
-            this.CreateMap<EmployeeTransferObject, Employee>().ReverseMap();
+            this.CreateMap<ProductCategoryTransferObject, ProductCategory>().ReverseMap();
+            this.CreateMap<ProductTransferObject, Northwind.Services.Products.Product>().ReverseMap();
+            this.CreateMap<EmployeeTransferObject, Northwind.Services.Employees.Employee>().ReverseMap();
+
+            this.CreateMap<Employee, Northwind.Services.Employees.Employee>()
+                .ReverseMap();
+            this.CreateMap<Category, ProductCategory>()
+                .ReverseMap();
+            this.CreateMap<Product, Northwind.Services.Products.Product>()
+                .ReverseMap();
 
             this.CreateMap<Northwind.Services.EntityFrameworkCore.Blogging.Entities.BlogArticle, BlogArticle>()
                 .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.EmployeeId))

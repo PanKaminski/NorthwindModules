@@ -226,6 +226,37 @@ namespace Northwind.DataAccess.SqlServer.Products
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<int> GetProductsCountAsync()
+        {
+            using var sqlCommand = new SqlCommand("Get_Count_OfProducts", this.connection)
+            {
+                CommandType = CommandType.StoredProcedure,
+            };
+
+            await this.OpenIfClosedAsync();
+
+            return (int)((await sqlCommand.ExecuteScalarAsync()) ?? 0);
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> GetProductsCountAsync(int categoryId)
+        {
+            using var sqlCommand = new SqlCommand("Get_Count_Of_Products_By_Category", this.connection)
+            {
+                CommandType = CommandType.StoredProcedure,
+            };
+
+            const string categoryIdParameter = "@categoryId";
+            sqlCommand.Parameters.Add(categoryIdParameter, SqlDbType.Int);
+            sqlCommand.Parameters[categoryId].Value = categoryId;
+
+            await this.OpenIfClosedAsync();
+
+            return (int)((await sqlCommand.ExecuteScalarAsync()) ?? 0);
+        }
+
+        /// <inheritdoc/>
         private static ProductTransferObject CreateProduct(SqlDataReader reader)
         {
             var id = (int)reader["ProductID"];

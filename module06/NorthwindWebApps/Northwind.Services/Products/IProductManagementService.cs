@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Northwind.Services.Entities;
 
 namespace Northwind.Services.Products
 {
@@ -63,7 +62,22 @@ namespace Northwind.Services.Products
         /// Shows a list of products that belongs to a specified category.
         /// </summary>
         /// <param name="categoryId">A product category identifier.</param>
+        /// <param name="offset">Count of products to skip.</param>
+        /// <param name="limit">Count of products to take.</param>
         /// <returns>A <see cref="IAsyncEnumerable{T}"/> of <see cref="Product"/>.</returns>
-        IAsyncEnumerable<Product> GetProductsForCategoryAsync(int categoryId);
+        IAsyncEnumerable<Product> GetProductsForCategoryAsync(int categoryId, int offset, int limit);
+
+        /// <summary>
+        /// Gets count of products.
+        /// </summary>
+        /// <returns>Count of products.</returns>
+        Task<int> GetProductsCountAsync();
+
+        /// <summary>
+        /// Gets count of products.
+        /// </summary>
+        /// <param name="categoryId">Id of the category.</param>
+        /// <returns>Count of products.</returns>
+        Task<int> GetProductsCountAsync(int categoryId);
     }
 }

@@ -63,5 +63,19 @@ namespace Northwind.DataAccess.Products
         /// <param name="collectionOfCategoryId">A <see cref="ICollection{T}"/> of category id.</param>
         /// <returns>A <see cref="IAsyncEnumerable{T}"/> of <see cref="ProductTransferObject"/>.</returns>
         IAsyncEnumerable<ProductTransferObject> SelectProductByCategoryAsync(ICollection<int> collectionOfCategoryId);
+
+        /// <summary>
+        /// Gets count of products.
+        /// </summary>
+        /// <returns>Count of all products.</returns>
+        public Task<int> GetProductsCountAsync();
+
+        /// <summary>
+        /// Gets count of products.
+        /// </summary>
+        /// <param name="categoryId">Id of the category.</param>
+        /// <returns>Count of all products.</returns>
+        public Task<int> GetProductsCountAsync(int categoryId);
+
     }
 }

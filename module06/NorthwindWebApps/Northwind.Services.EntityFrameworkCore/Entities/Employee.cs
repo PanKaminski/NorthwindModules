@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
 
-namespace Northwind.Services.Entities
+namespace Northwind.Services.EntityFrameworkCore.Entities
 {
     public partial class Employee
     {

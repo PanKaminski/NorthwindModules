@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Northwind.Services.Entities;
 using Northwind.Services.Products;
 
 namespace NorthwindApiApp.Controllers
@@ -29,12 +28,19 @@ namespace NorthwindApiApp.Controllers
         public IAsyncEnumerable<Product> GetAsync(int offset, int limit) =>
             this.productService.GetProductsAsync(offset, limit);
 
-        [HttpGet("category/{categoryId:int}")]
-        public IAsyncEnumerable<Product> GetByCategoryAsync(int categoryId) => this.productService.GetProductsForCategoryAsync(categoryId);
+        [HttpGet("category/{categoryId:int}/{offset:int}/{limit:int}")]
+        public IAsyncEnumerable<Product> GetByCategoryAsync(int categoryId, int offset, int limit) => 
+            this.productService.GetProductsForCategoryAsync(categoryId, offset, limit);
 
         [HttpGet("names")]
         public IAsyncEnumerable<Product> GetAsync(IList<string> names) =>
             this.productService.GetProductsByNameAsync(names);
+
+        [HttpGet("category/{categoryId:int}/count")]
+        public async Task<ActionResult<int>> GetCountAsync(int categoryId) => await this.productService.GetProductsCountAsync(categoryId);
+
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetCountAsync() => await this.productService.GetProductsCountAsync();
 
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -85,11 +91,6 @@ namespace NorthwindApiApp.Controllers
         public async Task<ActionResult> UpdateAsync(int id, Product product)
         {
             if (product is null)
-            {
-                return this.BadRequest();
-            }
-
-            if (id != product.Id)
             {
                 return this.BadRequest();
             }

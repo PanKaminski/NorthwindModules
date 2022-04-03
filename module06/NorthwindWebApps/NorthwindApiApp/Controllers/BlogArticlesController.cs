@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Northwind.Services.Blogging;
 using Northwind.Services.Customers;
 using Northwind.Services.Employees;
-using Northwind.Services.Entities;
 using Northwind.Services.Products;
 
 namespace NorthwindApiApp.Controllers

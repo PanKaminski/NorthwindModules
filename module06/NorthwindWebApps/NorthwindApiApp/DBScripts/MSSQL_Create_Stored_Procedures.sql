@@ -357,3 +357,15 @@ CREATE PROCEDURE [dbo].[Update_Product]
 	WHERE ProductID = @productId
 	SELECT @@ROWCOUNT
 GO
+
+CREATE PROCEDURE [dbo].[Get_Count_OfProducts]
+AS
+	SELECT COUNT(*) FROM [dbo].[Products]
+GO
+
+CREATE PROCEDURE [dbo].[Get_Count_Of_Products_By_Category]
+    @categoryId int
+AS
+	SELECT COUNT(*) FROM [dbo].[Products]
+	WHERE CategoryID = @categoryId
+GO

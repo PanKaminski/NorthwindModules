@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Northwind.DataAccess;
 using Northwind.DataAccess.Products;
-using Northwind.Services.Entities;
 using Northwind.Services.Products;
 
 namespace Northwind.Services.DataAccess.Products
@@ -112,17 +111,24 @@ namespace Northwind.Services.DataAccess.Products
             await this.productDao.UpdateProductAsync(this.mapper.Map<ProductTransferObject>(product));
 
         /// <inheritdoc/>
-        public async IAsyncEnumerable<Product> GetProductsForCategoryAsync(int categoryId)
+        public async IAsyncEnumerable<Product> GetProductsForCategoryAsync(int categoryId, int offset, int limit)
         {
             if (categoryId < 1)
             {
                 yield break;
             }
 
-            await foreach (var product in this.productDao.SelectProductByCategoryAsync(new[] { categoryId }))
+            await foreach (var product in this.productDao
+                .SelectProductByCategoryAsync(new[] { categoryId }))
             {
                 yield return this.mapper.Map<Product>(product);
             }
         }
+
+        /// <inheritdoc/>
+        public Task<int> GetProductsCountAsync() => this.productDao.GetProductsCountAsync();
+
+        /// <inheritdoc/>
+        public Task<int> GetProductsCountAsync(int categoryId) => this.productDao.GetProductsCountAsync(categoryId);
     }
 }
