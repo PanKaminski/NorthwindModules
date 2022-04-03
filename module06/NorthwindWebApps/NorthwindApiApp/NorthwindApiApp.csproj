@@ -10,9 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Northwind.DataAccess.SqlServer\Northwind.DataAccess.SqlServer.csproj" />
-    <ProjectReference Include="..\Northwind.DataAccess\Northwind.DataAccess.csproj" />
-    <ProjectReference Include="..\Northwind.Services.DataAccess\Northwind.Services.DataAccess.csproj" />
     <ProjectReference Include="..\Northwind.Services.EntityFrameworkCore\Northwind.Services.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\Northwind.Services\Northwind.Services.csproj" />
     <ProjectReference Include="..\Northwind.Services.EntityFrameworkCore.Blogging\Northwind.Services.EntityFrameworkCore.Blogging.csproj" />

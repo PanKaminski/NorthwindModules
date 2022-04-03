@@ -47,6 +47,26 @@ namespace NorthwindApiApp.Controllers
             return this.NotFound();
         }
 
+        [HttpGet("{lastName}/{firstName}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Employee>> GetByFullNameAsync(string lastName, string firstName)
+        {
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            {
+                return this.BadRequest();
+            }
+
+            var employee = await this.employeeService.TryGetEmployeeByFullName(firstName, lastName);
+
+            if (employee.Item1)
+            {
+                return employee.Item2;
+            }
+
+            return this.NotFound();
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> CreateAsync(Employee employee)

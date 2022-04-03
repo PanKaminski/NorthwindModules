@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Northwind.DataAccess.Employees;
-using Northwind.DataAccess.Products;
 using Northwind.Services.Blogging;
 using Northwind.Services.EntityFrameworkCore.Entities;
 using Northwind.Services.Products;
@@ -13,15 +11,15 @@ namespace NorthwindApiApp.Infrastructure
     {
         public MappingProfile()
         {
-            this.CreateMap<ProductCategoryTransferObject, ProductCategory>().ReverseMap();
-            this.CreateMap<ProductTransferObject, Northwind.Services.Products.Product>().ReverseMap();
-            this.CreateMap<EmployeeTransferObject, Northwind.Services.Employees.Employee>().ReverseMap();
-
             this.CreateMap<Employee, Northwind.Services.Employees.Employee>()
                 .ReverseMap();
             this.CreateMap<Category, ProductCategory>()
                 .ReverseMap();
             this.CreateMap<Product, Northwind.Services.Products.Product>()
+                .ReverseMap();
+
+            this.CreateMap<Customer, Northwind.Services.Customers.Customer>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CustomerId))
                 .ReverseMap();
 
             this.CreateMap<Northwind.Services.EntityFrameworkCore.Blogging.Entities.BlogArticle, BlogArticle>()

@@ -3,7 +3,6 @@ using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Northwind.DataAccess.SqlServer;
 using Northwind.Services.Blogging;
 using Northwind.Services.Customers;
 using Northwind.Services.Employees;
@@ -23,15 +22,6 @@ namespace NorthwindApiApp.Platform
 
             switch (configuration["DbService"])
             {
-                case "ADO":
-                    services
-                        .AddTransient<IProductManagementService, Northwind.Services.DataAccess.Products.ProductManagementDataAccessService>()
-                        .AddTransient<IProductCategoryManagementService, Northwind.Services.DataAccess.Products.ProductCategoriesManagementDataAccessService>()
-                        .AddTransient<IProductCategoryPicturesService, Northwind.Services.DataAccess.Products.ProductCategoryPicturesManagementDataAccessService>()
-                        .AddTransient<IEmployeeManagementService, Northwind.Services.DataAccess.Employees.EmployeeManagementDataAccessService>()
-                        .AddTransient<Northwind.DataAccess.NorthwindDataAccessFactory, SqlServerDataAccessFactory>()
-                        .AddScoped(_ => new SqlConnection(configuration.GetConnectionString("DefaultConnection")));
-                    break;
                 case "EF":
                     services
                         .AddTransient<IProductManagementService,

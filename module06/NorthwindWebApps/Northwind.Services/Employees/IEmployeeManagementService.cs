@@ -50,5 +50,13 @@ namespace Northwind.Services.Employees
         /// <param name="employee">New values.</param>
         /// <returns>True, if the employee was successfully updated, otherwise, false.</returns>
         Task<bool> UpdateEmployeeAsync(int employeeId, Employee employee);
+
+        /// <summary>
+        /// Receives employee by name.
+        /// </summary>
+        /// <param name="firstName">Employee first name.</param>
+        /// <param name="lastName">Employee last name.</param>
+        /// <returns>True with employee, if employee was found, otherwise false.</returns>
+        Task<(bool, Employee)> TryGetEmployeeByFullName(string firstName, string lastName);
     }
 }

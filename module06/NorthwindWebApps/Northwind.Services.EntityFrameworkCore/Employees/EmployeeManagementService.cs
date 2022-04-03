@@ -107,6 +107,20 @@ namespace Northwind.Services.EntityFrameworkCore.Employees
             return true;
         }
 
+        /// <inheritdoc/>
+        public async Task<(bool, Employee)> TryGetEmployeeByFullName(string firstName, string lastName)
+        {
+            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+            {
+                return (false, new Employee());
+            }
+
+            var employee = await this.dbContext.Employees.FirstOrDefaultAsync(e => firstName == e.FirstName && lastName == e.LastName);
+
+
+            return (employee is not null, this.mapper.Map<Employee>(employee));
+        }
+
         private static void Map(Entities.Employee productToChange, Employee source)
         {
             productToChange.FirstName = source.FirstName;
