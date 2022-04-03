@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NorthwindApp.FrontEnd.Mvc.Models;
 using System.Diagnostics;
@@ -21,12 +22,17 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(int page = 1, int pageSize = PageSize)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = PageSize)
         {
             this.logger.LogDebug($"Request to method {nameof(CategoriesController)}/Index with value {nameof(page)} = {page}.");
 
-            var categories = this.apiClient.GetCategoriesAsync((page - 1) * pageSize, pageSize);
+            IList<CategoryResponseViewModel> categories = new List<CategoryResponseViewModel>();
 
+            await foreach (var category in this.apiClient.GetCategoriesAsync((page - 1) * pageSize, pageSize))
+            {
+                categories.Add(category);
+            }
+            
             return this.View(categories);
         }
 
@@ -52,6 +58,12 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
         [HttpGet]
         public IActionResult UpdateCategoryAsync() => this.View();
+
+        [HttpGet("{categoryId}/picture")]
+        public async Task<ActionResult> GetPicture(int categoryId)
+        {
+            return this.File(await this.apiClient.UploadImage(categoryId), "image/bmp");
+        }
 
         [HttpPut]
         public async Task<IActionResult> UpdateCategoryAsync(int categoryId, CategoryInputViewModel category)

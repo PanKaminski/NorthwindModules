@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NorthwindApp.FrontEnd.Mvc.Infrastructure;
+using NorthwindApp.FrontEnd.Mvc.Services;
 
 namespace NorthwindApp.FrontEnd.Mvc
 {
@@ -18,6 +21,18 @@ namespace NorthwindApp.FrontEnd.Mvc
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddAutoMapper(typeof(NorthwindMappingProfile));
+
+            var serviceUrl = this.Configuration["ServerHost"];
+            services.AddHttpClient<ICategoriesApiClient, CategoriesHttpApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(serviceUrl);
+            });
+            
+            services.AddHttpClient<IProductsApiClient, ProductsHttpApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(serviceUrl);
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

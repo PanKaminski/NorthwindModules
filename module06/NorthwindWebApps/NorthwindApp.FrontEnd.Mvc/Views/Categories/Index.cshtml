@@ -1,8 +1,28 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<NorthwindApp.FrontEnd.Mvc.ViewModels.Categories.CategoryResponseViewModel>
+@{
+    ViewData["Title"] = "Categories";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+    <h1 class="row justify-content-center">Categories</h1>
+        <div class="row">
+            @foreach (var category in Model)
+            {
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow h-100">
+                        @if (category.HasImage)
+                        {
+                            <img class="card-img-top" src="@Url.Action("GetPicture", "Categories", new { categoryId = category.Id })" alt="Category image cap">
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a class="stretched-link" asp-controller="Products" asp-action="ShowCategoryProducts" asp-route-categoryId="@category.Id">@category.Name</a>
+                            </h5>
+                            <p class="card-text">@category.Description</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
 </div>
+

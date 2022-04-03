@@ -13,5 +13,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
         Task<int> CreateCategoryAsync(CategoryInputViewModel category);
 
         Task<bool> UpdateCategoryAsync(int id, CategoryInputViewModel category);
+
+        Task<byte[]> UploadImage(int categoryId);
     }
 }
