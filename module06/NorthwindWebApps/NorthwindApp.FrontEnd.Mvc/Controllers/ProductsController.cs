@@ -49,5 +49,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         {
             return this.View(await this.apiClient.GetProduct(id));
         }
+
+        
     }
 }

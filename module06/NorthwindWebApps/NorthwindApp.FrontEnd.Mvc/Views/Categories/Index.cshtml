@@ -5,7 +5,13 @@
 
 <div class="container">
     <h1 class="row justify-content-center">Categories</h1>
-        <div class="row">
+        @if (this.User.IsInRole("Admin") || this.User.IsInRole("Employee"))
+        {
+            <div class="justify-content-center mt-3">
+                <a class="btn btn-primary" type="button" asp-controller="Categories" asp-action="AddCategory">Add category</a>
+            </div>
+        }
+        <div class="row mt-3">
             @foreach (var category in Model)
             {
                 <div class="col-md-3 mb-4">
@@ -16,10 +22,25 @@
                         }
                         <div class="card-body">
                             <h5 class="card-title">
-                                <a class="stretched-link" asp-controller="Products" asp-action="ShowCategoryProducts" asp-route-categoryId="@category.Id">@category.Name</a>
+                                <a class="stretched-link" style="position: relative;" asp-controller="Products" asp-action="ShowCategoryProducts" asp-route-categoryId="@category.Id">@category.Name</a>
                             </h5>
                             <p class="card-text">@category.Description</p>
                         </div>
+                        @if (this.User.IsInRole("Admin") || this.User.IsInRole("Employee"))
+                        {
+                            <div class="card-footer">      
+                                <div class="row position-relative text-center">
+                                    <div class="col-6">
+                                        <a class="btn btn-warning" asp-action="UpdateCategory" asp-route-categoryId="@category.Id">Edit</a>
+                                    </div>
+                                    <div class="col-6">
+                                        <form method="post" asp-controller="Categories" asp-action="DeleteCategory" asp-route-categoryId="@category.Id">
+                                            <input type="submit" class="btn badge-danger" value="Delete"/>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
             }

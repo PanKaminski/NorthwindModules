@@ -79,7 +79,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
 
             if (category.Image is not null)
             {
-                await this.httpClient.PutAsJsonAsync($"{ApiPath}/{id}/ picture", this.mapper.Map<ProductCategory>(category));
+                await this.httpClient.PutAsJsonAsync($"{ApiPath}/{id}/ picture", category.Image);
             }
 
             return id;
@@ -96,6 +96,12 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
                     return false;
                 default:
                     response.EnsureSuccessStatusCode();
+
+                    if (category.Image is not null)
+                    {
+                        await this.httpClient.PutAsJsonAsync($"{ApiPath}/{id}/ picture", category.Image);
+                    }
+
                     return true;
             }
         }
@@ -110,6 +116,13 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
             }
 
             return await response.Content.ReadAsByteArrayAsync();
+        }
+
+        public async Task<bool> DeleteCategory(int categoryId)
+        {
+            var response = await this.httpClient.DeleteAsync($"{ApiPath}/{categoryId}");
+
+            return response.StatusCode != HttpStatusCode.NotFound;
         }
     }
 }

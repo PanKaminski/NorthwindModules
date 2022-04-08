@@ -1,6 +1,7 @@
 ﻿using System;
 using AutoMapper;
 using Northwind.Services.Products;
+using NorthwindApp.FrontEnd.Mvc.Identity.Models;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Categories;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Products;
 

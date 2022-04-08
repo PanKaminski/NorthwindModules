@@ -1,9 +1,12 @@
 ﻿using System;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NorthwindApp.FrontEnd.Mvc.Identity;
 using NorthwindApp.FrontEnd.Mvc.Infrastructure;
 using NorthwindApp.FrontEnd.Mvc.Services;
 
@@ -22,6 +25,18 @@ namespace NorthwindApp.FrontEnd.Mvc
         {
             services.AddControllersWithViews();
             services.AddAutoMapper(typeof(NorthwindMappingProfile));
+
+            services.AddDbContext<IdentityDbContext>(opt =>
+                opt.UseSqlServer(this.Configuration.GetConnectionString("IdentityConnection")));
+
+            services.AddSingleton<IAdminService, AdminService>();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                });
 
             var serviceUrl = this.Configuration["ServerHost"];
             services.AddHttpClient<ICategoriesApiClient, CategoriesHttpApiClient>(client =>
@@ -52,6 +67,7 @@ namespace NorthwindApp.FrontEnd.Mvc
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

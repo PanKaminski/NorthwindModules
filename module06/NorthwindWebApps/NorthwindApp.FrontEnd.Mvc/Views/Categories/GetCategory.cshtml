@@ -5,4 +5,30 @@
     Layout = "_Layout";
 }
 
-<h2>@Model.Name</h2>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">@Model.Name</h3>
+            <div class="row">
+                <div class="col-lg-5 col-md-5 col-sm-6">
+                        <img src="@Url.Action("GetPicture", "Categories", new { categoryId = Model.Id })"
+                             alt="Category image cap" class="img-fluid">
+                </div>
+                <div class="col-lg-7 col-md-7 col-sm-6">
+                    <h2 class="card-title mt-5">Description</h2>
+                    <p>@Model.Description</p>
+                    @if (this.User.IsInRole("Admin") || this.User.IsInRole("Employee"))
+                    {
+                        <div class="row ml-1">
+                            <a class="btn btn-warning" type="button" asp-controller="Categories" asp-action="UpdateCategory" asp-route-categoryId="@Model.Id">Edit</a>
+                            <form method="post" asp-controller="Categories" asp-action="DeleteCategory" asp-route-categoryId="@Model.Id">
+                                <input type="submit" class="btn badge-danger mx-2" value="Delete"/>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

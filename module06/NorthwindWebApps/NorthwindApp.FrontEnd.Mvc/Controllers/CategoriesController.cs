@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using NorthwindApp.FrontEnd.Mvc.Models;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using NorthwindApp.FrontEnd.Mvc.Services;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Categories;
 
@@ -43,21 +44,54 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             var category = await this.apiClient.GetCategoryAsync(id);
 
-            return this.View(category);
+            return category is null ? this.View("Error") : this.View(category);
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin, Employee")]
         public IActionResult AddCategoryAsync() => this.View();
 
         [HttpPost]
+        [Authorize(Roles = "Admin, Employee")]
         public async Task<IActionResult> AddCategoryAsync(CategoryInputViewModel category)
         {
             var categoryId = await this.apiClient.CreateCategoryAsync(category);
-            return RedirectToAction("GetCategory", new { id = categoryId });
+
+            if (categoryId < 1)
+            {
+                return this.View(category);
+            }
+
+            return this.RedirectToAction("GetCategory", new { id = categoryId });
         }
 
         [HttpGet]
-        public IActionResult UpdateCategoryAsync() => this.View();
+        [Authorize(Roles = "Admin, Employee")]
+        public async Task<IActionResult> UpdateCategoryAsync(int categoryId)
+        {
+            this.ViewBag.categoryId = categoryId;
+            var result = await this.apiClient.GetCategoryAsync(categoryId);
+
+            return result is null ? this.View("Error") : this.View(new CategoryInputViewModel
+            {
+                Name = result.Name,
+                Description = result.Description,
+            });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin, Employee")]
+        public async Task<IActionResult> UpdateCategoryAsync(CategoryInputViewModel category, int categoryId)
+        {
+            var isUpdated = await this.apiClient.UpdateCategoryAsync(categoryId, category);
+
+            if (!isUpdated)
+            {
+                this.View(category);
+            }
+
+            return this.RedirectToAction("GetCategory", new { id = categoryId });
+        }
 
         [HttpGet("{categoryId}/picture")]
         public async Task<ActionResult> GetPicture(int categoryId)
@@ -65,19 +99,19 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
             return this.File(await this.apiClient.UploadImage(categoryId), "image/bmp");
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateCategoryAsync(int categoryId, CategoryInputViewModel category)
+        [HttpPost]
+        [Authorize(Roles = "Admin, Employee")]
+        public async Task<IActionResult> DeleteCategoryAsync(int categoryId)
         {
-            var isUpdated = await this.apiClient.UpdateCategoryAsync(categoryId, category);
+            var result = await this.apiClient.DeleteCategory(categoryId);
 
-            if (!isUpdated)
+            if (!result)
             {
-                this.View();
+                return this.View("Error");
             }
 
-            return RedirectToAction("GetCategory", new { id = categoryId });
+            return this.RedirectToAction("Index", "Categories");
         }
-
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

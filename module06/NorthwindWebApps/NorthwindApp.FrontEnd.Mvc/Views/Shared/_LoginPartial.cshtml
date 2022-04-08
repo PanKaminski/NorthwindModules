@@ -1,0 +1,29 @@
+﻿<ul class="navbar-nav">
+    @{
+        var isAuthenticated = User?.Identity?.IsAuthenticated;
+    }
+
+    @if (isAuthenticated.HasValue && isAuthenticated.Value)
+    {
+        <li class="nav-item">
+            <div class="nav-link btn btn-link text-dark">
+                <i class="far fa-user"></i>
+                <span>@User.Identity.Name</span>
+            </div>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Categories")">
+                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+        </li>
+    }
+</ul>
