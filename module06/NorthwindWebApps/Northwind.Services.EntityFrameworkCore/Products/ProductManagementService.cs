@@ -147,6 +147,7 @@ namespace Northwind.Services.EntityFrameworkCore.Products
             productToChange.UnitPrice = source.UnitPrice;
             productToChange.UnitsInStock = source.UnitsInStock;
             productToChange.UnitsOnOrder = source.UnitsOnOrder;
+            productToChange.CategoryId = source.CategoryId;
         }
     }
 }

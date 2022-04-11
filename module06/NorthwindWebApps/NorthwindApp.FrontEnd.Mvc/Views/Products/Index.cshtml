@@ -1,7 +1,7 @@
-﻿@model NorthwindApp.FrontEnd.Mvc.ViewModels.Products.CategoryProductListViewModel
+﻿@model NorthwindApp.FrontEnd.Mvc.ViewModels.Products.ProductListViewModel
 
 @{
-    ViewBag.Title = "Category Products";
+    ViewBag.Title = "Products";
 }
 
 <div class="container py-5">
@@ -9,6 +9,12 @@
         <div class="col-lg-7 mx-auto">
             <h1 class="display-4">Products</h1>
         </div>
+        @if (this.User.IsInRole("Admin") || this.User.IsInRole("Employee"))
+        {
+            <div class="justify-content-center mt-3">
+                <a class="btn btn-primary" type="button" asp-controller="Products" asp-action="AddProduct">Add product</a>
+            </div>
+        }
     </div>
     @foreach (var product in Model.Products)
     {
@@ -40,16 +46,14 @@
             </div>
         </div>
     }
-    
+
     <ul class="pagination justify-content-center mt-3">
         @for (int i = 1; i <= Model.PageInfo.CountOfPages; i++)
         {
             <li class="page-item">
-                <a class="page-link" asp-controller="Products" asp-action="ShowCategoryProducts"
-                   asp-route-categoryId="@Model.CategoryId" asp-route-page="@i" asp-route-pageSize="@Model.PageInfo.ItemsPerPage">@i</a>
+                <a class="page-link" asp-controller="Products" asp-action="Index"
+                   asp-route-page="@i" asp-route-pageSize="@Model.PageInfo.ItemsPerPage">@i</a>
             </li>
         }
     </ul>
 </div>
-
-

@@ -50,11 +50,31 @@ namespace Northwind.Services.EntityFrameworkCore.Products
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<ProductCategory> GetCategoriesByNameAsync(IList<string> names) =>
-            this.dbContext.Categories
-                .Where(c => names.Contains(c.Name))
-                .Select(c => this.mapper.Map<ProductCategory>(c))
-                .AsAsyncEnumerable();
+        public async Task<(bool, ProductCategory)> TryGetCategoryByNameAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return (false, new ProductCategory());
+            }
+
+            var category = await this.dbContext.Categories.FirstOrDefaultAsync(c => c.Name == name);
+
+            return (category is not null, this.mapper.Map<ProductCategory>(category));
+        }
+
+        public async Task<(bool, ProductCategory)> TryGetCategoryByProductAsync(int productId)
+        {
+            var product = await this.dbContext.Products
+                .Include(p => p.Category)
+                .SingleOrDefaultAsync(p => p.Id == productId);
+
+            if (product?.Category is null)
+            {
+                return (false, new ProductCategory());
+            }
+
+            return (true, this.mapper.Map<ProductCategory>(product.Category));
+        }
 
         /// <inheritdoc/>
         public IAsyncEnumerable<ProductCategory> GetCategoriesAsync(int offset, int limit)

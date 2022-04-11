@@ -64,6 +64,59 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
             }
         }
 
+        public async IAsyncEnumerable<CategoryResponseViewModel> GetCategoriesAsync()
+        {
+            var response = await this.httpClient.GetAsync(ApiPath);
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var categories = JsonConvert.DeserializeObject<IEnumerable<ProductCategory>>(jsonString);
+
+            if (categories is null)
+            {
+                yield break;
+            }
+
+            foreach (var category in categories)
+            {
+                var viewModel = this.mapper.Map<CategoryResponseViewModel>(category);
+
+                yield return viewModel;
+            }
+        }
+
+        public async Task<CategoryResponseViewModel> GetCategoryByNameAsync(string name)
+        {
+            var response = await this.httpClient.GetAsync($"{ApiPath}/name/{name}");
+
+            if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest)
+            {
+                return null;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonObject = await response.Content.ReadAsStringAsync();
+            var category = JsonConvert.DeserializeObject<ProductCategory>(jsonObject);
+
+            return this.mapper.Map<CategoryResponseViewModel>(category);
+        }
+
+        public async Task<CategoryResponseViewModel> GetProductByProductAsync(int productId)
+        {
+            var response = await this.httpClient.GetAsync($"{ApiPath}/product/{productId}");
+
+            if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest)
+            {
+                return null;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonObject = await response.Content.ReadAsStringAsync();
+            var category = JsonConvert.DeserializeObject<ProductCategory>(jsonObject);
+
+            return this.mapper.Map<CategoryResponseViewModel>(category);
+        }
+
         public async Task<int> CreateCategoryAsync(CategoryInputViewModel category)
         {
             var response = await this.httpClient.PostAsJsonAsync(ApiPath, this.mapper.Map<ProductCategory>(category));

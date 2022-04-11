@@ -8,14 +8,14 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
     {
         Task<(int, IEnumerable<ProductResponseViewModel>)> GetProductsByCategoryAsync(int categoryId, int offset, int limit);
 
-        IAsyncEnumerable<ProductResponseViewModel> GetProductsAsync(int offset, int limit);
+        Task<(int, IEnumerable<ProductResponseViewModel>)> GetProductsAsync(int offset, int limit);
 
-        Task<ProductResponseViewModel> GetProduct(int id);
+        Task<ProductResponseViewModel> GetProductAsync(int id);
 
-        Task<int> AddProduct();
+        Task<int> CreateProductAsync(ProductInputViewModel productModel, int? categoryId);
 
-        Task<int> UpdateProduct(int id);
+        Task<bool> UpdateProductAsync(int id, ProductInputViewModel productModel, int? categoryId);
 
-        Task<bool> DeleteProduct(int id);
+        Task<bool> DeleteProductAsync(int id);
     }
 }

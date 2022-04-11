@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Newtonsoft.Json;
@@ -36,15 +37,21 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
             var countResponse = await this.httpClient.GetStringAsync($"{ApiPath}/category/{categoryId}/count");
             var count = JsonConvert.DeserializeObject<int>(countResponse);
 
-            return (count, result.Select(p => this.mapper.Map<ProductResponseViewModel>(p)));
+            return (count, result?.Select(p => this.mapper.Map<ProductResponseViewModel>(p)));
         }
 
-        public IAsyncEnumerable<ProductResponseViewModel> GetProductsAsync(int offset, int limit)
+        public async Task<(int, IEnumerable<ProductResponseViewModel>)> GetProductsAsync(int offset, int limit)
         {
-            throw new System.NotImplementedException();
+            var response = await this.httpClient.GetStringAsync($"{ApiPath}/{offset}/{limit}");
+            var result = JsonConvert.DeserializeObject<IEnumerable<Product>>(response);
+
+            var countResponse = await this.httpClient.GetStringAsync($"{ApiPath}/count");
+            var count = JsonConvert.DeserializeObject<int>(countResponse);
+
+            return (count, result?.Select(p => this.mapper.Map<ProductResponseViewModel>(p)));
         }
 
-        public async Task<ProductResponseViewModel> GetProduct(int id)
+        public async Task<ProductResponseViewModel> GetProductAsync(int id)
         {
             var response = await this.httpClient.GetAsync($"{ApiPath}/{id}");
 
@@ -60,19 +67,46 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
             return this.mapper.Map<ProductResponseViewModel>(result);
         }
 
-        public Task<int> AddProduct()
+        public async Task<int> CreateProductAsync(ProductInputViewModel productModel, int? categoryId)
         {
-            throw new System.NotImplementedException();
+            var entity = this.mapper.Map<Product>(productModel);
+            entity.CategoryId = categoryId;
+
+            var response = await this.httpClient.PostAsJsonAsync(ApiPath, entity);
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                return -1;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<int>(await response.Content.ReadAsStringAsync());
         }
 
-        public Task<int> UpdateProduct(int id)
+        public async Task<bool> UpdateProductAsync(int id, ProductInputViewModel productModel, int? categoryId)
         {
-            throw new System.NotImplementedException();
+            var entity = this.mapper.Map<Product>(productModel);
+            entity.CategoryId = categoryId;
+            var response = await this.httpClient.PutAsJsonAsync($"{ApiPath}/{id}", entity);
+
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest:
+                case HttpStatusCode.NotFound:
+                    return false;
+                default:
+                    response.EnsureSuccessStatusCode();
+
+                    return true;
+            }
         }
 
-        public Task<bool> DeleteProduct(int id)
+        public async Task<bool> DeleteProductAsync(int id)
         {
-            throw new System.NotImplementedException();
+            var response = await this.httpClient.DeleteAsync($"{ApiPath}/{id}");
+
+            return response.StatusCode != HttpStatusCode.NotFound;
         }
     }
 }

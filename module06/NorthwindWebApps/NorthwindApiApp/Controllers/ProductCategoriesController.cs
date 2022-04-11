@@ -29,10 +29,46 @@ namespace NorthwindApiApp.Controllers
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
         public IAsyncEnumerable<ProductCategory> GetAsync() => this.productCategoryService.GetCategoriesAsync();
 
-        [HttpGet("names")]
-        [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-        public IAsyncEnumerable<ProductCategory> GetAsync(IList<string> names) =>
-            this.productCategoryService.GetCategoriesByNameAsync(names);
+        [HttpGet("name/{name}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ProductCategory>> GetAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return this.BadRequest();
+            }
+
+            var result = await this.productCategoryService.TryGetCategoryByNameAsync(name);
+
+            if (result.Item1)
+            {
+                return result.Item2;
+            }
+
+            return this.NotFound();
+        }
+
+        [HttpGet("product/{productId}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ProductCategory>> GetByProductAsync(int productId)
+        {
+            if (productId < 1)
+            {
+                return this.BadRequest();
+            }
+
+            var category = await this.productCategoryService.TryGetCategoryByProductAsync(productId);
+
+            if (category.Item1)
+            {
+                return category.Item2;
+            }
+
+            return this.NotFound();
+        }
+
 
         [HttpGet ("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
