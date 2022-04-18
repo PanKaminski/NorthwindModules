@@ -1,26 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NorthwindApp.FrontEnd.Mvc.Identity;
-using NorthwindApp.FrontEnd.Mvc.Identity.Models;
-using NorthwindApp.FrontEnd.Mvc.Services;
+using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Account;
+using NorthwindApp.FrontEnd.Mvc.ViewModels.Employees;
 
 namespace NorthwindApp.FrontEnd.Mvc.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IdentityDbContext context;
-        private readonly IAdminService adminService;
+        private const int PageSize = 15;
+        private readonly IUserManagementService userManagementService;
 
-        public AccountController(IdentityDbContext context, IAdminService adminService)
+        public AccountController(IUserManagementService userManagementService)
         {
-            this.context = context;
-            this.adminService = adminService;
+            this.userManagementService = userManagementService;
         }
 
         [HttpGet]
@@ -45,32 +42,14 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.View(registerModel);
             }
 
-            User user = await this.context.Users.FirstOrDefaultAsync(u => u.Email == registerModel.Email);
+            var isCreated = await this.userManagementService.RegisterAsync(registerModel);
 
-            if (user is null)
+            if (isCreated)
             {
-                user = new User
-                {
-                    Email = registerModel.Email,
-                    
-                    Password = BCrypt.Net.BCrypt.HashPassword(registerModel.Password),
-                };
+                var id = await this.userManagementService.GenerateClaims(registerModel.Email);
 
-                var isAdminCreationAllowed = await this.adminService.CheckAdminUserCreationAsync();
-                if (isAdminCreationAllowed)
-                {
-                    user.Role = await this.context.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
-                }
-                else
-                {
-                    user.Role = await this.context.Roles.FirstOrDefaultAsync(r => r.Name == "Customer");
-                }
-
-                this.context.Users.Add(user);
-
-                await this.context.SaveChangesAsync();
-
-                await this.Authenticate(user);
+                await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(id));
 
                 return this.RedirectToAction("Index", "Categories");
             }
@@ -95,13 +74,12 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.View(loginModel);
             }
 
-            User user = await this.context.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == loginModel.Email);
-
-            if (user is not null && BCrypt.Net.BCrypt.Verify(loginModel.Password, user.Password))
+            if (await this.userManagementService.VerifyCredentialsAsync(loginModel))
             {
-                await this.Authenticate(user);
+                var id = await this.userManagementService.GenerateClaims(loginModel.Email);
+
+                await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(id));
 
                 return !string.IsNullOrEmpty(loginModel.ReturnUrl) && this.Url.IsLocalUrl(loginModel.ReturnUrl)
                     ? this.Redirect(loginModel.ReturnUrl) : this.RedirectToAction("Index", "Categories");
@@ -112,6 +90,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
             return this.View(loginModel);
         }
 
+        [Authorize]
         public async Task<IActionResult> LogoutAsync()
         {
             await this.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -119,17 +98,32 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
             return this.RedirectToAction("Index", "Categories");
         }
 
-        private async Task Authenticate(User user)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ViewRolesAsync(int page = 1, int pageSize = PageSize)
         {
-            var claims = new List<Claim>
+            return this.View(await this.userManagementService.GetUsers(page, pageSize));
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult MakeEmployee(int userId)
+        {
+            this.ViewBag.userId = userId;
+            return this.View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> MakeEmployee(int userId, EmployeeInputViewModel employeeModel)
+        {
+            if (!this.ModelState.IsValid)
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.Name),
-            };
+                this.ViewBag.userId = userId;
+                return this.View(employeeModel);
+            }
 
-            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-
-            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+            await this.userManagementService.CreateEmployee(userId, employeeModel);
+            return this.RedirectToAction("ViewRoles");
         }
     }
 }

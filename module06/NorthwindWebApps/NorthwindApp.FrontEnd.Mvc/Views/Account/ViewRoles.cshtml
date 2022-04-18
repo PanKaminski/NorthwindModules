@@ -1,0 +1,56 @@
+﻿@model NorthwindApp.FrontEnd.Mvc.ViewModels.PageListViewModel<NorthwindApp.FrontEnd.Mvc.ViewModels.Account.UserResponseViewModel>
+
+@{
+    ViewBag.Title = "Manage Roles";
+}
+
+<h2>Northwind users</h2>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col">Email</th>
+        <th scope="col">Role</th>
+        <th scope="col">Change role</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var user in Model.Items)
+    {
+        <tr>
+            <td>@user.Email</td>
+            <td>@user.Role</td>
+
+            @switch (user.Role)
+            {
+                case "Customer":
+                {
+                    <td>
+                        <a class="btn btn-primary" type="button" asp-controller="Account" asp-action="MakeEmployee" asp-route-userId="@user.Id">Make employee</a>
+                    </td>
+                    break;
+                }
+                case "Employee":
+                {
+                    <td>-</td>
+                    break;
+                }
+                default:
+                {
+                    <td>-</td>
+                    break;
+                }
+            }
+        </tr>
+    }
+    </tbody>
+</table>
+
+<ul class="pagination justify-content-center mt-3">
+    @for (int i = 1; i <= Model.PageInfo.CountOfPages; i++)
+    {
+        <li class="page-item">
+            <a class="page-link" [class.active]="page == @i" asp-controller="Account" asp-action="ViewRoles"
+               asp-route-page="@i" asp-route-pageSize="@Model.PageInfo.ItemsPerPage">@i</a>
+        </li>
+    }
+</ul>

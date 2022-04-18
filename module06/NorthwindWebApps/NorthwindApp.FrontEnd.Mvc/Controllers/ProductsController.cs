@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using NorthwindApp.FrontEnd.Mvc.Services;
+using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Products;
 
@@ -32,9 +33,9 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             var result = await this.apiClient.GetProductsAsync((page - 1) * pageSize, pageSize);
 
-            return this.View(new ProductListViewModel
+            return this.View(new PageListViewModel<ProductResponseViewModel>()
             {
-                Products = result.Item2,
+                Items = result.Item2,
                 PageInfo = new PageInfo
                 {
                     CountOfPages = (int)Math.Ceiling((decimal)result.Item1 / pageSize),
@@ -52,7 +53,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             return this.View(new CategoryProductListViewModel
             {
-                Products = result.Item2,
+                Items = result.Item2,
                 PageInfo = new PageInfo
                 {
                     CountOfPages = (int)Math.Ceiling((decimal)result.Item1 / pageSize),

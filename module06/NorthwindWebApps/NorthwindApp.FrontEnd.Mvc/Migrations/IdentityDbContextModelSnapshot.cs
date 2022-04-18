@@ -19,6 +19,38 @@ namespace NorthwindApp.FrontEnd.Mvc.Migrations
                 .HasAnnotation("ProductVersion", "5.0.14")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("NorthwindApp.FrontEnd.Mvc.Identity.Models.Customer", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("NorthwindId")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("northwind_id");
+
+                    b.HasKey("UserId")
+                        .HasName("pk_customers_transfer");
+
+                    b.ToTable("customers_transfer");
+                });
+
+            modelBuilder.Entity("NorthwindApp.FrontEnd.Mvc.Identity.Models.Employee", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("NorthwindId")
+                        .HasColumnType("int")
+                        .HasColumnName("northwind_id");
+
+                    b.HasKey("UserId")
+                        .HasName("pk_employees_transfer");
+
+                    b.ToTable("employees_transfer");
+                });
+
             modelBuilder.Entity("NorthwindApp.FrontEnd.Mvc.Identity.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -65,10 +97,6 @@ namespace NorthwindApp.FrontEnd.Mvc.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("email");
-
-                    b.Property<int>("NorthwindId")
-                        .HasColumnType("int")
-                        .HasColumnName("northwind_id");
 
                     b.Property<string>("Password")
                         .HasColumnType("nvarchar(max)")

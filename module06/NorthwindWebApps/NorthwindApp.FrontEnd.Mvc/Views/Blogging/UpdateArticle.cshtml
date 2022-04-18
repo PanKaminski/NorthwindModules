@@ -1,0 +1,25 @@
+﻿@model NorthwindApp.FrontEnd.Mvc.ViewModels.Blogging.BlogArticleInputViewModel
+
+@{
+    ViewBag.Title = $"Update {Model.Title}";
+}
+
+<h2>Update @Model.Title</h2>
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" asp-controller="Blogging" asp-action="UpdateArticle" asp-route-articleId="@ViewBag.articleId" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Title"></label>
+                <input class="form-control" asp-for="Title" value="@Model.Title" />
+                <span asp-validation-for="Title"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Text"></label>
+                <textarea class="form-control" asp-for="Text"></textarea>
+                <span asp-validation-for="Text"></span>
+            </div>
+            <input class="btn btn-primary" type="submit" value="Save" />
+        </form>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+﻿@model NorthwindApp.FrontEnd.Mvc.ViewModels.Blogging.BlogArticleInfoViewModel
+
+@{
+    ViewBag.Title = $"{Model.Title}";
+}
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">@Model.Title</h3>
+        <p class="card-text">@Model.Text</p>
+        @if (this.User.IsInRole("Employee"))
+        {
+            <div>
+                <span class="mr-1 font-weight-lighter">                            
+                    <a class="text-secondary" asp-controller="Blogging" asp-action="UpdateArticle" asp-route-articleId="@Model.Id">Edit</a>
+                </span>
+                <form method="post" asp-controller="Blogging" asp-action="DeleteBlogArticle" asp-route-articleId="@Model.Id">
+                    <input type="submit" class="text-danger mx-2" value="Delete"/>
+                </form>
+            </div>
+        }
+
+    </div>
+</div>
+
+<div class="col-6 mx-auto">
+    @foreach (var comment in Model.Comments)
+    {
+        <div class="d-flex justify-content-center py-2">
+            <div class="bg-white rounded shadow-lg py-2 px-2"> <span class="font-weight-lighter">@comment.Text</span>
+                <div class="d-flex justify-content-between py-1 pt-2">
+                    <div>               
+                        <i class="far fa-user"></i>
+                        <span class="ml-2 font-weight-lighter">@comment?.Author?.ContactName</span>
+                    </div>
+                    @if (this.User.IsInRole("Customer"))
+                    {
+                        <div>
+                            <span class="mr-1 font-weight-lighter">                            
+                                Edit
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -7,6 +7,10 @@ namespace NorthwindApp.FrontEnd.Mvc.Identity
     {
         public DbSet<User> Users { get; set; }
 
+        public DbSet<Employee> EmployeesTransfer { get; set; }
+
+        public DbSet<Customer> CustomersTransfer { get; set; }
+
         public DbSet<Role> Roles { get; set; }
 
         public IdentityDbContext(DbContextOptions<IdentityDbContext> options)

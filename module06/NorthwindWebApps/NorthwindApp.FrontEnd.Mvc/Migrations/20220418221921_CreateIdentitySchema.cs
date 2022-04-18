@@ -7,6 +7,30 @@ namespace NorthwindApp.FrontEnd.Mvc.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "customers_transfer",
+                columns: table => new
+                {
+                    user_id = table.Column<int>(type: "int", nullable: false),
+                    northwind_id = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_customers_transfer", x => x.user_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "employees_transfer",
+                columns: table => new
+                {
+                    user_id = table.Column<int>(type: "int", nullable: false),
+                    northwind_id = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_employees_transfer", x => x.user_id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roles",
                 columns: table => new
                 {
@@ -27,8 +51,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     password = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    role_id = table.Column<int>(type: "int", nullable: true),
-                    northwind_id = table.Column<int>(type: "int", nullable: false)
+                    role_id = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -64,6 +87,12 @@ namespace NorthwindApp.FrontEnd.Mvc.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "customers_transfer");
+
+            migrationBuilder.DropTable(
+                name: "employees_transfer");
+
             migrationBuilder.DropTable(
                 name: "users");
 

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NorthwindApp.FrontEnd.Mvc.Identity;
+using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 
-namespace NorthwindApp.FrontEnd.Mvc.Services
+namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
 {
     public class AdminService : IAdminService
     {

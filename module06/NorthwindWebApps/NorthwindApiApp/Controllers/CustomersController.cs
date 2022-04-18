@@ -18,7 +18,7 @@ namespace NorthwindApiApp.Controllers
             this.customersService = customersService ?? throw new ArgumentNullException(nameof(customersService));
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("name/{name}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Customer>> GetByNameAsync(string name)

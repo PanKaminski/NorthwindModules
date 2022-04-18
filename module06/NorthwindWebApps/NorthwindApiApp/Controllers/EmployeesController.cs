@@ -12,6 +12,7 @@ namespace NorthwindApiApp.Controllers
     public class EmployeesController : ControllerBase
     {
         private readonly IEmployeeManagementService employeeService;
+        private readonly IEmployeePicturesService picturesService;
 
         public EmployeesController(IEmployeeManagementService productCategoryService)
         {
@@ -114,6 +115,56 @@ namespace NorthwindApiApp.Controllers
         public async Task<ActionResult> DeleteAsync(int id)
         {
             if (await this.employeeService.DestroyEmployeeAsync(id))
+            {
+                return this.NoContent();
+            }
+
+            return this.NotFound();
+        }
+
+        [HttpGet("{employeeId}/photo")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetPictureAsync(int employeeId)
+        {
+            var picture = await this.picturesService.TryGetPhotoAsync(employeeId);
+            if (picture.Item1)
+            {
+                return this.File(picture.Item2, "image/bmp");
+            }
+
+            return this.NotFound();
+        }
+
+        [HttpPut("{employeeId}/photo")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> UpdatePictureAsync(int employeeId, IFormFile formFile)
+        {
+            if (employeeId < 1)
+            {
+                return this.BadRequest();
+            }
+
+            if (formFile is null)
+            {
+                return this.BadRequest();
+            }
+
+            if (!await this.picturesService.UpdatePhotoAsync(employeeId, formFile.OpenReadStream()))
+            {
+                return this.NotFound();
+            }
+
+            return this.NoContent();
+        }
+
+        [HttpDelete("{employeeId}/photo")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> DeletePicture(int employeeId)
+        {
+            if (await this.picturesService.DeletePhotoAsync(employeeId))
             {
                 return this.NoContent();
             }

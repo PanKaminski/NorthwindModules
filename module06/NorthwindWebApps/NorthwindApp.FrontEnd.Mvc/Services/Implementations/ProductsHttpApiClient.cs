@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Newtonsoft.Json;
 using Northwind.Services.Products;
+using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Products;
 
-namespace NorthwindApp.FrontEnd.Mvc.Services
+namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
 {
     public class ProductsHttpApiClient : IProductsApiClient
     {

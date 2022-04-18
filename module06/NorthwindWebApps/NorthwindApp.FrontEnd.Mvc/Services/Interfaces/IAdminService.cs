@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace NorthwindApp.FrontEnd.Mvc.Services
+namespace NorthwindApp.FrontEnd.Mvc.Services.Interfaces
 {
     public interface IAdminService
     {

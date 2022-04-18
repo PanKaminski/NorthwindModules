@@ -1,4 +1,6 @@
-﻿namespace Northwind.Services.Blogging
+﻿using Northwind.Services.Customers;
+
+namespace Northwind.Services.Blogging
 {
     /// <summary>
     /// Customers comment for the article.

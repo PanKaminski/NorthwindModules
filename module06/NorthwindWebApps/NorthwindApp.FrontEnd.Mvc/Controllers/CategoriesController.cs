@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using NorthwindApp.FrontEnd.Mvc.Services;
+using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Categories;
 
 namespace NorthwindApp.FrontEnd.Mvc.Controllers

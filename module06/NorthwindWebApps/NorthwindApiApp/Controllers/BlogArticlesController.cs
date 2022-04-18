@@ -54,6 +54,9 @@ namespace NorthwindApiApp.Controllers
             }
         }
 
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetCountAsync() => await this.bloggingService.GetBlogArticlesCountAsync();
+
         [HttpGet("{articleId}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -96,6 +99,25 @@ namespace NorthwindApiApp.Controllers
         {
             return this.bloggingService.GetBlogArticleCommentsAsync(articleId);
         }
+
+        [HttpGet("comments/{commentId}")]
+        public async Task<ActionResult<BlogComment>> GetCommentAsync(int commentId)
+        {
+            if (commentId < 1)
+            {
+                return this.BadRequest();
+            }
+
+            var (retrievingArticleResult, comment) = await this.bloggingService.TryGetBlogCommentAsync(commentId);
+
+            if (!retrievingArticleResult)
+            {
+                return this.NotFound();
+            }
+
+            return comment;
+        }
+
 
         [HttpGet("{articleId}/comments/{offset:int}/{limit:int}")]
         public IAsyncEnumerable<BlogComment> GetCommentsAsync(int articleId, int offset, int limit)

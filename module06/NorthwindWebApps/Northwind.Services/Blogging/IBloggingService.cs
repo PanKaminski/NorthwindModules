@@ -46,6 +46,13 @@ namespace Northwind.Services.Blogging
         Task<(bool, BlogArticle)> TryGetBlogArticleAsync(int articleId);
 
         /// <summary>
+        /// Get comment by id.
+        /// </summary>
+        /// <param name="commentId">Blog comment id.</param>
+        /// <returns>True and found comment, if comment with such id exists, otherwise false with null.</returns>
+        Task<(bool, BlogComment)> TryGetBlogCommentAsync(int commentId);
+
+        /// <summary>
         /// Creates new article.
         /// </summary>
         /// <param name="articleDto">Blog articleDto to add into storage.</param>
@@ -114,5 +121,11 @@ namespace Northwind.Services.Blogging
         /// <param name="productsId">Product id.</param>
         /// <returns>True, if link to product was deleted, otherwise, false.</returns>
         Task<bool> RemoveLinkToProduct(int articleId, int productsId);
+
+        /// <summary>
+        /// Gets count of blog articles.
+        /// </summary>
+        /// <returns>Count of blog articles.</returns>
+        Task<int> GetBlogArticlesCountAsync();
     }
 }

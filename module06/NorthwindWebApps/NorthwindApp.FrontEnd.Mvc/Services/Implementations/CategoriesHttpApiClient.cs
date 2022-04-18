@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Newtonsoft.Json;
 using Northwind.Services.Products;
+using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Categories;
 
-namespace NorthwindApp.FrontEnd.Mvc.Services
+namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
 {
     public class CategoriesHttpApiClient : ICategoriesApiClient
     {
@@ -32,7 +33,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services
         {
             var response = await this.httpClient.GetAsync($"{ApiPath}/{id}");
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest)
             {
                 return null;
             }

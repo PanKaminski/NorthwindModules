@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using NorthwindApp.FrontEnd.Mvc.Identity;
 using NorthwindApp.FrontEnd.Mvc.Infrastructure;
 using NorthwindApp.FrontEnd.Mvc.Services;
+using NorthwindApp.FrontEnd.Mvc.Services.Implementations;
+using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 
 namespace NorthwindApp.FrontEnd.Mvc
 {
@@ -48,6 +50,22 @@ namespace NorthwindApp.FrontEnd.Mvc
             {
                 client.BaseAddress = new Uri(serviceUrl);
             });
+
+            services.AddHttpClient<IBlogArticlesApiClient, BlogArticlesHttpApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(serviceUrl);
+            });
+
+            services.AddHttpClient<ICustomersApiClient, CustomersHttpApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(serviceUrl);
+            });
+
+            services.AddHttpClient<IUserManagementService, UserManagementService>(client =>
+            {
+                client.BaseAddress = new Uri(serviceUrl);
+            });
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

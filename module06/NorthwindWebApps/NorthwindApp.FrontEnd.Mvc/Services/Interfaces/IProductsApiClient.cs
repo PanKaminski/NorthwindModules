@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Products;
 
-namespace NorthwindApp.FrontEnd.Mvc.Services
+namespace NorthwindApp.FrontEnd.Mvc.Services.Interfaces
 {
     public interface IProductsApiClient
     {

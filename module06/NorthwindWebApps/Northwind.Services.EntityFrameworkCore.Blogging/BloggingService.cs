@@ -29,21 +29,31 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<BlogArticle> GetBlogArticlesAsync()
+        public async IAsyncEnumerable<BlogArticle> GetBlogArticlesAsync()
         {
-            return this.dbContext.BlogArticles
-                .Select(a => this.mapper.Map<BlogArticle>(a))
-                .AsAsyncEnumerable();
+            var articles = this.dbContext.BlogArticles.AsEnumerable();
+
+            var topArticles = articles.Reverse().Select(a => this.mapper.Map<BlogArticle>(a));
+
+            foreach (var topArticle in topArticles)
+            {
+                yield return topArticle;
+            }
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<BlogArticle> GetBlogArticlesAsync(int offset, int limit)
+        public async IAsyncEnumerable<BlogArticle> GetBlogArticlesAsync(int offset, int limit)
         {
-            return this.dbContext.BlogArticles
-                .Skip(offset)
+            var articles = this.dbContext.BlogArticles.AsEnumerable();
+
+            var topArticles = articles.Reverse().Skip(offset)
                 .Take(limit)
-                .Select(a => this.mapper.Map<BlogArticle>(a))
-                .AsAsyncEnumerable();
+                .Select(a => this.mapper.Map<BlogArticle>(a));
+
+            foreach (var topArticle in topArticles)
+            {
+                yield return topArticle;
+            }
         }
 
         /// <inheritdoc/>
@@ -72,6 +82,14 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             var article = await this.dbContext.BlogArticles.FindAsync(articleId);
 
             return article is null ? (false, null) : (true, this.mapper.Map<BlogArticle>(article));
+        }
+
+        /// <inheritdoc/>
+        public async Task<(bool, BlogComment)> TryGetBlogCommentAsync(int commentId)
+        {
+            var comment = await this.dbContext.BlogArticleComments.FindAsync(commentId);
+
+            return comment is null ? (false, null) : (true, this.mapper.Map<BlogComment>(comment));
         }
 
         /// <inheritdoc/>
@@ -183,7 +201,7 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
                 return false;
             }
 
-            oldComment.Text = comment.Text;
+            oldComment.Text = string.IsNullOrWhiteSpace(comment.Text) ? oldComment.Text : comment.Text;
             return await this.dbContext.SaveChangesAsync() > 0;
         }
 
@@ -263,5 +281,8 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
 
             return result;
         }
+
+        /// <inheritdoc/>
+        public async Task<int> GetBlogArticlesCountAsync() => await this.dbContext.BlogArticles.CountAsync();
     }
 }
