@@ -8,16 +8,16 @@
     <div class="card-body">
         <h3 class="card-title">@Model.Title</h3>
         <p class="card-text">@Model.Text</p>
-        @if (this.User.IsInRole("Employee"))
+        @if (this.User.IsInRole("Employee") && Model.AuthorId == ViewBag.northwindUserId)
         {
-            <div>
-                <span class="mr-1 font-weight-lighter">                            
+            <form method="post" class="d-flex align-items-center" asp-controller="Blogging" asp-action="DeleteBlogArticle" asp-route-articleId="@Model.Id">
+                <span class="font-weight-lighter">                            
                     <a class="text-secondary" asp-controller="Blogging" asp-action="UpdateArticle" asp-route-articleId="@Model.Id">Edit</a>
                 </span>
-                <form method="post" asp-controller="Blogging" asp-action="DeleteBlogArticle" asp-route-articleId="@Model.Id">
-                    <input type="submit" class="text-danger mx-2" value="Delete"/>
-                </form>
-            </div>
+                <div class="btn-group d-inline" role="group">
+                    <input type="submit" class="btn btn-link text-danger ml-2 p-0 font-weight-lighter" value="Delete"/>
+                </div>
+            </form>
         }
 
     </div>

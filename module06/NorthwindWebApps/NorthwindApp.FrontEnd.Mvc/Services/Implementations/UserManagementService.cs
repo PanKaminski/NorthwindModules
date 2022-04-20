@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -47,12 +48,21 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             {
                 PageInfo = new PageInfo
                 {
-                    CountOfPages = await this.context.Users.CountAsync(),
+                    CountOfPages = (int)Math.Ceiling((decimal)await this.context.Users.CountAsync() / pageSize),
                     CurrentPage = page,
                     ItemsPerPage = 0
                 },
                 Items = this.mapper.Map<IEnumerable<User>, IEnumerable<UserResponseViewModel>>(users),
             };
+        }
+
+        public async Task<IEnumerable<string>> GetEmployeeNames()
+        {
+            var response = await this.httpClient.GetAsync($"{EmployeeApiPath}");
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var employees = JsonConvert.DeserializeObject<IEnumerable<Northwind.Services.Employees.Employee>>(jsonString);
+
+            return employees?.Select(e => e.LastName + " " + e.FirstName);
         }
 
         public async Task<UserResponseViewModel> Get(int userId)
@@ -125,7 +135,17 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
 
         public async Task<int> CreateEmployee(int userId, EmployeeInputViewModel employeeModel)
         {
-            var response = await this.httpClient.PostAsJsonAsync(EmployeeApiPath, this.mapper.Map<Employee>(employeeModel));
+            var employeeEntity = this.mapper.Map<Northwind.Services.Employees.Employee>(employeeModel);
+
+            if (!string.IsNullOrWhiteSpace(employeeModel.ReportsTo))
+            {
+                var fullName = employeeModel.ReportsTo.Split();
+                var chief = await this.GetIdByFullName(fullName[0], fullName[1]);
+
+                employeeEntity.ReportsTo = chief > 0 ? chief : null;
+            }
+
+            var response = await this.httpClient.PostAsJsonAsync(EmployeeApiPath, employeeEntity);
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
@@ -139,6 +159,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             var user = await this.context.Users.SingleOrDefaultAsync(u => u.Id == userId);
             user.Role = await this.context.Roles.FirstOrDefaultAsync(r => r.Name == "Employee");
             await this.context.EmployeesTransfer.AddAsync(new Employee { UserId = userId, NorthwindId = id });
+            await this.context.SaveChangesAsync();
 
             if (employeeModel.Photo is not null)
             {
@@ -146,6 +167,57 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             }
 
             return id;
+        }
+
+        public async Task<int> GetNorthwindEmployeeId(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return -1;
+            }
+
+            var employee = await this.context.Users
+                .SingleOrDefaultAsync(u => u.Email == email);
+
+            var connectionEntity = await this.context.EmployeesTransfer
+                .SingleOrDefaultAsync(e => e.UserId == employee.Id);
+
+            return connectionEntity?.NorthwindId ?? -1;
+        }
+
+        public async Task<(string, bool)> GetNorthwindCustomerId(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return ("", false);
+            }
+
+            var customer = await this.context.Users
+                .SingleOrDefaultAsync(u => u.Email == email);
+            var identityId = customer?.Id ?? 0;
+
+            var connectionEntity = await this.context.CustomersTransfer
+                .SingleOrDefaultAsync(e => e.UserId == identityId);
+
+            var result = connectionEntity?.NorthwindId is not null;
+
+            return (result ? connectionEntity.NorthwindId : "", result);
+        }
+
+        private async Task<int> GetIdByFullName(string firstName, string lastName)
+        {
+            var response = await this.httpClient.GetAsync($"{EmployeeApiPath}/{firstName}/{lastName}");
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return -1;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var result = JsonConvert.DeserializeObject<Northwind.Services.Employees.Employee>(await response.Content.ReadAsStringAsync());
+
+            return result?.Id ?? -1;
         }
     }
 }

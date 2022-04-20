@@ -4,4 +4,126 @@
     ViewBag.Title = "Add Employee";
 }
 
-<h2>Add new Employee</h2>
+<h2>Add new employee</h2>
+
+<form method="post" asp-controller="Account" asp-action="MakeEmployee" asp-route-userId="@ViewBag.userId" enctype="multipart/form-data">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="FirstName"></label>
+            <input class="form-control" asp-for="FirstName" />
+            <span asp-validation-for="FirstName"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="LastName"></label>
+            <input class="form-control" asp-for="LastName" />
+            <span asp-validation-for="LastName"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="Title"></label>
+            <input class="form-control" asp-for="Title" />
+            <span asp-validation-for="Title"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="TitleOfCourtesy"></label>
+            <input class="form-control" asp-for="TitleOfCourtesy" />
+            <span asp-validation-for="TitleOfCourtesy"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="BirthDate"></label>
+            <input class="form-control" id="datepicker" asp-for="BirthDate">
+            <span asp-validation-for="BirthDate"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="HireDate"></label>
+            <input class="form-control" id="datepicker2" asp-for="HireDate">
+            <span asp-validation-for="HireDate"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label asp-for="Country"></label>
+            <input class="form-control" asp-for="Country" />
+            <span asp-validation-for="Country"></span>
+        </div>
+        <div class="form-group col-md-4">
+            <label asp-for="Region"></label>
+            <input class="form-control" asp-for="Region" />
+            <span asp-validation-for="Region"></span>
+        </div>
+        <div class="form-group col-md-4">
+            <label asp-for="City"></label>
+            <input class="form-control" asp-for="City" />
+            <span asp-validation-for="City"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="Address"></label>
+            <input class="form-control" asp-for="Address" />
+            <span asp-validation-for="Address"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="PostalCode"></label>
+            <input class="form-control" asp-for="PostalCode" />
+            <span asp-validation-for="PostalCode"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="Photo"></label>
+            <div class="custom-file">
+                <label class="custom-file-label" value="Choose file..."></label>
+                <input asp-for="Photo" class="custom-file-input" multiple />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="HomePhone"></label>
+            <input class="form-control" asp-for="HomePhone" />
+            <span asp-validation-for="HomePhone"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Extension"></label>
+            <input class="form-control" asp-for="Extension" />
+            <span asp-validation-for="Extension"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-12">
+            <label asp-for="Notes"></label>
+            <textarea class="form-control" asp-for="Notes"></textarea>
+            <span asp-validation-for="Notes"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-12">
+            <label asp-for="ReportsTo"></label>
+            <select class="form-control" asp-for="ReportsTo" asp-items="@ViewBag.employees">
+                <option selected="selected" disabled="disabled"></option>
+            </select>
+            <span asp-validation-for="ReportsTo" class="text-danger"></span>
+        </div>
+    </div>
+    <div>
+        <input class="btn btn-primary" type="submit" value="Create" />
+    </div>
+</form>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function (){
+            $(".custom-file-input").on("change", function (){
+                var fileLabel = $(this).prev(".custom-file-label");
+                var files = $(this)[0].files;
+                if (files.length == 1){
+                    fileLabel.html(files[0].name);
+                }
+            });
+        });
+    </script>
+}

@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NorthwindApp.FrontEnd.Mvc.Identity;
 using NorthwindApp.FrontEnd.Mvc.Models;
 using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels;
@@ -17,12 +15,13 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         private const int ArticlesPageSize = 10;
         private const int CommentsPageSize = 5;
         private readonly IBlogArticlesApiClient bloggingApiClient;
-        private readonly IdentityDbContext identityDbContext;
+        private readonly IUserManagementService userManagementService;
 
-        public BloggingController(IBlogArticlesApiClient bloggingApiClient, IdentityDbContext context)
+        public BloggingController(IBlogArticlesApiClient bloggingApiClient, IUserManagementService userManagementService/*, IdentityDbContext context*/)
         {
             this.bloggingApiClient = bloggingApiClient ?? throw new ArgumentNullException(nameof(bloggingApiClient));
-            this.identityDbContext = context ?? throw new ArgumentNullException(nameof(context));
+            this.userManagementService =
+                userManagementService ?? throw new ArgumentNullException(nameof(userManagementService));
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = ArticlesPageSize)
@@ -44,6 +43,21 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         public async Task<IActionResult> ShowBlogArticle(int articleId, int page = 1, int pageSize = CommentsPageSize)
         {
             var model = await this.bloggingApiClient.GetBlogArticle(articleId, (page - 1) * pageSize, pageSize);
+            var isAuth = this.User?.Identity?.IsAuthenticated;
+
+            if (isAuth.HasValue && isAuth.Value)
+            {
+                if (this.User.IsInRole("Employee"))
+                {
+                    this.ViewBag.northwindUserId =
+                        await this.userManagementService.GetNorthwindEmployeeId(this.User.Identity.Name);
+                }
+                else if(this.User.IsInRole("Customer"))
+                {
+                    this.ViewBag.northwindUserId =
+                        await this.userManagementService.GetNorthwindCustomerId(this.User.Identity.Name);
+                }
+            }
 
             if (!model.Item2)
             {
@@ -76,19 +90,16 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.View(articleModel);
             }
 
-            var employee = await this.identityDbContext.Users
-                .SingleOrDefaultAsync(u => u.Email == this.User.Identity.Name);
-            var connectionEntity = await this.identityDbContext.EmployeesTransfer
-                .SingleOrDefaultAsync(e => e.UserId == employee.Id);
+            var employeeId = await this.userManagementService.GetNorthwindEmployeeId(this.User?.Identity?.Name ?? "");
 
-            if (employee is null)
+            if (employeeId < 0)
             {
                 return this.Error();
             }
 
-            var newArticleId = await this.bloggingApiClient.CreateBlogArticleAsync(articleModel, connectionEntity.NorthwindId);
+            var newArticleId = await this.bloggingApiClient.CreateBlogArticleAsync(articleModel, employeeId);
 
-            return this.RedirectToAction("ShowBlogArticle", new { id = newArticleId });
+            return this.RedirectToAction("ShowBlogArticle", new { articleId = newArticleId });
         }
 
         [HttpPost]
@@ -100,19 +111,16 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.View(commentModel);
             }
 
-            var customer = await this.identityDbContext.Users
-                .SingleOrDefaultAsync(u => u.Email == this.User.Identity.Name);
-            var connectionEntity = await this.identityDbContext.CustomersTransfer
-                .SingleOrDefaultAsync(e => e.UserId == customer.Id);
+            var (customerId, exists) = await this.userManagementService.GetNorthwindCustomerId(this.User?.Identity?.Name ?? "");
 
-            if (customer is null)
+            if (!exists)
             {
                 return this.Error();
             }
 
-            var newCommentId = await this.bloggingApiClient.CreateBlogCommentAsync(commentModel, blogArticleId, connectionEntity.NorthwindId);
+            var newCommentId = await this.bloggingApiClient.CreateBlogCommentAsync(commentModel, blogArticleId, customerId);
 
-            return this.RedirectToAction("ShowBlogArticle", new { id = newCommentId });
+            return this.RedirectToAction("ShowBlogArticle", new { articleId = newCommentId });
         }
 
         [HttpPost]
@@ -126,19 +134,16 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.Error();
             }
 
-            var customer = await this.identityDbContext.Users
-                .SingleOrDefaultAsync(u => u.Email == this.User.Identity.Name);
-            var connectionEntity = await this.identityDbContext.CustomersTransfer
-                .SingleOrDefaultAsync(e => e.UserId == customer.Id);
+            var (customerId, exists) = await this.userManagementService.GetNorthwindCustomerId(this.User?.Identity?.Name ?? "");
 
-            if (customer is null || comment.Item1.CustomerId != connectionEntity.NorthwindId)
+            if (!exists || comment.Item1.CustomerId != customerId)
             {
                 return this.Error();
             }
 
             await this.bloggingApiClient.DeleteBlogCommentAsync(blogArticleId, commentId);
 
-            return this.RedirectToAction("ShowBlogArticle", new { id = blogArticleId });
+            return this.RedirectToAction("ShowBlogArticle", new { articleId = blogArticleId });
         }
 
         [HttpGet]
@@ -148,12 +153,9 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
             this.ViewBag.articleId = articleId;
             var result = await this.bloggingApiClient.GetBlogArticle(articleId, 0, CommentsPageSize);
 
-            var employee = await this.identityDbContext.Users
-                .SingleOrDefaultAsync(u => u.Email == this.User.Identity.Name);
-            var connectionEntity = await this.identityDbContext.EmployeesTransfer
-                .SingleOrDefaultAsync(e => e.UserId == employee.Id);
+            var employeeId = await this.userManagementService.GetNorthwindEmployeeId(this.User?.Identity?.Name ?? "");
 
-            return !result.Item2 || connectionEntity.NorthwindId != result.Item1.AuthorId ? 
+            return !result.Item2 || employeeId != result.Item1.AuthorId ? 
                 this.View("Error") : this.View(new BlogArticleInputViewModel
             {
                 Title = result.Item1.Title,
@@ -171,9 +173,9 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.View(articleModel);
             }
 
-            var newArticleId = await this.bloggingApiClient.UpdateBlogArticleAsync(articleModel, articleId);
+            await this.bloggingApiClient.UpdateBlogArticleAsync(articleModel, articleId);
 
-            return this.RedirectToAction("ShowBlogArticle", new { id = newArticleId });
+            return this.RedirectToAction("ShowBlogArticle", new { articleId });
         }
 
         [HttpPost]
@@ -187,12 +189,9 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.RedirectToAction("Index", "Blogging");
             }
 
-            var employee = await this.identityDbContext.Users
-                .SingleOrDefaultAsync(u => u.Email == this.User.Identity.Name);
-            var connectionEntity = await this.identityDbContext.EmployeesTransfer
-                .SingleOrDefaultAsync(e => e.UserId == employee.Id);
+            var employeeId = await this.userManagementService.GetNorthwindEmployeeId(this.User?.Identity?.Name ?? "");
 
-            if (article.Item1.AuthorId != connectionEntity.NorthwindId)
+            if (article.Item1.AuthorId != employeeId)
             {
                 return this.View("Error");
             }

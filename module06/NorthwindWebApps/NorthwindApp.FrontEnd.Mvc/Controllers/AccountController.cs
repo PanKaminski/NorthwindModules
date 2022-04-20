@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Account;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Employees;
@@ -106,9 +107,11 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public IActionResult MakeEmployee(int userId)
+        public async Task<IActionResult> MakeEmployee(int userId)
         {
             this.ViewBag.userId = userId;
+            var names = await this.userManagementService.GetEmployeeNames();
+            this.ViewBag.employees = new SelectList(names);
             return this.View();
         }
 
@@ -119,6 +122,9 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
             if (!this.ModelState.IsValid)
             {
                 this.ViewBag.userId = userId;
+                var names = await this.userManagementService.GetEmployeeNames();
+                this.ViewBag.employees = new SelectList(names);
+
                 return this.View(employeeModel);
             }
 

@@ -48,9 +48,19 @@
 <ul class="pagination justify-content-center mt-3">
     @for (int i = 1; i <= Model.PageInfo.CountOfPages; i++)
     {
-        <li class="page-item">
-            <a class="page-link" [class.active]="page == @i" asp-controller="Account" asp-action="ViewRoles"
-               asp-route-page="@i" asp-route-pageSize="@Model.PageInfo.ItemsPerPage">@i</a>
-        </li>
+        @if (Model.PageInfo.CurrentPage == i)
+        {
+            <li class="page-item active">
+                <a class="page-link" asp-controller="Account" asp-action="ViewRoles"
+                   asp-route-page="@i" asp-route-pageSize="@Model.PageInfo.ItemsPerPage">@i</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item">
+                <a class="page-link" asp-controller="Account" asp-action="ViewRoles"
+                   asp-route-page="@i" asp-route-pageSize="@Model.PageInfo.ItemsPerPage">@i</a>
+            </li>
+        }
     }
 </ul>

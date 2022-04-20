@@ -7,55 +7,54 @@ namespace NorthwindApp.FrontEnd.Mvc.ViewModels.Employees
     public class EmployeeInputViewModel
     {
         [Required]
+        [Display(Name = "Last name")]
         [StringLength(60, MinimumLength = 2)]
         public string LastName { get; set; }
 
         [Required]
+        [Display(Name = "First name")]
         [StringLength(60, MinimumLength = 2)]
         public string FirstName { get; set; }
 
-        [Required]
+        [Display(Name = "Title")]
         [StringLength(60, MinimumLength = 2)]
         public string Title { get; set; }
 
-        [Required]
+        [Display(Name = "Title of courtesy")]
         [StringLength(60, MinimumLength = 2)]
         public string TitleOfCourtesy { get; set; }
 
-        public DateTime BirthDate { get; set; }
+        [Display(Name = "Birth date")]
+        public string BirthDate { get; set; }
 
-        public DateTime HireDate { get; set; }
+        [Display(Name = "Hire date")]
+        public string HireDate { get; set; }
 
-        [Required]
         [StringLength(100, MinimumLength = 2)]
         public string Address { get; set; }
 
-        [Required]
         [StringLength(60, MinimumLength = 2)]
         public string City { get; set; }
 
-        [Required]
         [StringLength(60, MinimumLength = 2)]
         public string Region { get; set; }
 
-        [Required]
+        [Display(Name = "Postal code")]
         public string PostalCode { get; set; }
 
-        [Required]
         public string Country { get; set; }
 
-        [Required]
+        [Display(Name = "Home phone")]
         [Phone]
         public string HomePhone { get; set; }
 
-        [Required]
         public string Extension { get; set; }
 
         public IFormFile Photo { get; set; }
 
-        [Required]
         public string Notes { get; set; }
 
-        public int ReportsTo { get; set; }
+        [Display(Name = "Reports to")]
+        public string ReportsTo { get; set; }
     }
 }

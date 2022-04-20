@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
 </head>
 <body>
     <header>
@@ -28,7 +29,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Blogging" asp-action="Index">Blog</a>
                         </li>
-
+                        @if (this.User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="ViewRoles">Users</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -43,12 +49,17 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2022 - NorthwindApp.FrontEnd.Mvc - <a asp-area="" asp-controller="Categories" asp-action="Privacy">Privacy</a>
+            &copy; 2022 - NorthwindApp.FrontEnd.Mvc - <a asp-area="" asp-controller="Categories" asp-action="Index">Home</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <script>
+        $( function() {
+            $("#datepicker, #datepicker2").datepicker({});        } );
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
