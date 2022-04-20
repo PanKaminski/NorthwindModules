@@ -1,4 +1,4 @@
-﻿@model IEnumerable<NorthwindApp.FrontEnd.Mvc.ViewModels.Categories.CategoryResponseViewModel>
+﻿@model PageListViewModel<NorthwindApp.FrontEnd.Mvc.ViewModels.Categories.CategoryResponseViewModel>
 @{
     ViewData["Title"] = "Categories";
 }
@@ -12,7 +12,7 @@
             </div>
         }
         <div class="row mt-3">
-            @foreach (var category in Model)
+            @foreach (var category in Model.Items)
             {
                 <div class="col-md-3 mb-4">
                     <div class="card shadow h-100">
@@ -45,5 +45,25 @@
                 </div>
             }
         </div>
+        
+        <ul class="pagination justify-content-center mt-3">
+            @for (int i = 1; i <= Model.PageInfo.CountOfPages; i++)
+            {
+                @if (Model.PageInfo.CurrentPage == i)
+                {
+                    <li class="page-item active">
+                        <a class="page-link" asp-controller="Categories" asp-action="Index"
+                           asp-route-page="@i" asp-route-pageSize="@Model.PageInfo.ItemsPerPage">@i</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-controller="Categories" asp-action="Index"
+                           asp-route-page="@i" asp-route-pageSize="@Model.PageInfo.ItemsPerPage">@i</a>
+                    </li>
+                }
+            }
+        </ul>
 </div>
 

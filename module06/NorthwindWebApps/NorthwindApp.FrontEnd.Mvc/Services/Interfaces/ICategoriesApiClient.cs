@@ -8,7 +8,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Interfaces
     {
         Task<CategoryResponseViewModel> GetCategoryAsync(int id);
 
-        IAsyncEnumerable<CategoryResponseViewModel> GetCategoriesAsync(int offset, int limit);
+        Task<(int, IEnumerable<CategoryResponseViewModel>)> GetCategoriesAsync(int offset, int limit);
 
         IAsyncEnumerable<CategoryResponseViewModel> GetCategoriesAsync();
 

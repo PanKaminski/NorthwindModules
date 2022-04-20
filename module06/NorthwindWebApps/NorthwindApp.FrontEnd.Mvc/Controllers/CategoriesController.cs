@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NorthwindApp.FrontEnd.Mvc.Models;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using NorthwindApp.FrontEnd.Mvc.Services;
 using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
+using NorthwindApp.FrontEnd.Mvc.ViewModels;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Categories;
 
 namespace NorthwindApp.FrontEnd.Mvc.Controllers
@@ -28,14 +30,18 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         {
             this.logger.LogDebug($"Request to method {nameof(CategoriesController)}/Index with value {nameof(page)} = {page}.");
 
-            IList<CategoryResponseViewModel> categories = new List<CategoryResponseViewModel>();
+            var result = await  this.apiClient.GetCategoriesAsync((page - 1) * pageSize, pageSize);
 
-            await foreach (var category in this.apiClient.GetCategoriesAsync((page - 1) * pageSize, pageSize))
+            return this.View(new PageListViewModel<CategoryResponseViewModel>()
             {
-                categories.Add(category);
-            }
-            
-            return this.View(categories);
+                Items = result.Item2,
+                PageInfo = new PageInfo
+                {
+                    CountOfPages = (int)Math.Ceiling((decimal)result.Item1 / pageSize),
+                    CurrentPage = page,
+                    ItemsPerPage = pageSize
+                },
+            });
         }
 
         [HttpGet]

@@ -46,23 +46,16 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return this.mapper.Map<CategoryResponseViewModel>(category);
         }
 
-        public async IAsyncEnumerable<CategoryResponseViewModel> GetCategoriesAsync(int offset, int limit)
+        public async Task<(int, IEnumerable<CategoryResponseViewModel>)> GetCategoriesAsync(int offset, int limit)
         {
             var response = await this.httpClient.GetAsync($"{ApiPath}/{offset}/{limit}");
             var jsonString = await response.Content.ReadAsStringAsync();
             var categories = JsonConvert.DeserializeObject<IEnumerable<ProductCategory>>(jsonString);
 
-            if (categories is null)
-            {
-                yield break;
-            }
+            var countResult = await this.httpClient.GetStringAsync($"{ApiPath}/count");
+            var count = JsonConvert.DeserializeObject<int>(countResult);
 
-            foreach (var category in categories)
-            {
-                var viewModel = this.mapper.Map<CategoryResponseViewModel>(category);
-
-                yield return viewModel;
-            }
+            return (count, this.mapper.Map<IEnumerable<ProductCategory>, IEnumerable<CategoryResponseViewModel>>(categories));
         }
 
         public async IAsyncEnumerable<CategoryResponseViewModel> GetCategoriesAsync()

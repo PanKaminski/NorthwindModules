@@ -49,6 +49,9 @@ namespace NorthwindApiApp.Controllers
             return this.NotFound();
         }
 
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetCountAsync() => await this.productCategoryService.GetCategoriesCountAsync();
+
         [HttpGet("product/{productId}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

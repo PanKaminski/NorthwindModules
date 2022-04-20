@@ -128,6 +128,9 @@ namespace Northwind.Services.EntityFrameworkCore.Products
         }
 
         /// <inheritdoc/>
+        public async Task<int> GetCategoriesCountAsync() => await this.dbContext.Categories.CountAsync();
+
+        /// <inheritdoc/>
         public async Task<bool> DestroyCategoryAsync(int categoryId)
         {
             var category = await this.dbContext.Categories.FindAsync(categoryId);

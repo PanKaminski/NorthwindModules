@@ -64,5 +64,11 @@ namespace Northwind.Services.Products
         /// <param name="productCategory">A <see cref="ProductCategory"/>.</param>
         /// <returns>True if a product category is updated; otherwise false.</returns>
         Task<bool> UpdateCategoryAsync(int categoryId, ProductCategory productCategory);
+
+        /// <summary>
+        /// Gets count of categories.
+        /// </summary>
+        /// <returns>Count of categories.</returns>
+        Task<int> GetCategoriesCountAsync();
     }
 }
