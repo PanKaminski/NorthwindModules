@@ -75,14 +75,14 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "Employee")]
         public IActionResult AddArticleAsync()
         {
             return this.View();
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> AddArticleAsync(BlogArticleInputViewModel articleModel)
         {
             if (!this.ModelState.IsValid)
@@ -103,7 +103,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Customer")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> AddCommentAsync(BlogCommentInputViewModel commentModel, int blogArticleId)
         {
             if (!this.ModelState.IsValid)
@@ -124,7 +124,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Customer")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> DeleteCommentAsync(int commentId, int blogArticleId)
         {
             var comment = await this.bloggingApiClient.GetBlogCommentAsync(commentId);
@@ -147,7 +147,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> UpdateArticleAsync(int articleId)
         {
             this.ViewBag.articleId = articleId;
@@ -165,7 +165,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> UpdateArticleAsync(BlogArticleInputViewModel articleModel, int articleId)
         {
             if (!this.ModelState.IsValid)
@@ -179,7 +179,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> DeleteBlogArticleAsync(int blogArticleId)
         {
             var article = await this.bloggingApiClient.GetBlogArticle(blogArticleId, 0, CommentsPageSize);
