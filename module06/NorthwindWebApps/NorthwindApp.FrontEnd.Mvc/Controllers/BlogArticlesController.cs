@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NorthwindApp.FrontEnd.Mvc.Models;
 using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Blogging;
@@ -42,7 +41,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
         public async Task<IActionResult> ShowBlogArticle(int articleId, int page = 1, int pageSize = CommentsPageSize)
         {
-            var model = await this.bloggingApiClient.GetBlogArticle(articleId, (page - 1) * pageSize, pageSize);
+            var (statusCode, article) = await this.bloggingApiClient.GetBlogArticle(articleId, (page - 1) * pageSize, pageSize);
             var isAuth = this.User?.Identity?.IsAuthenticated;
 
             if (isAuth.HasValue && isAuth.Value)
@@ -58,20 +57,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                         await this.userManagementService.GetNorthwindCustomerId(this.User.Identity.Name);
                 }
             }
-
-            if (!model.Item2)
-            {
-                return this.Error();
-            }
-
-            return this.View(model.Item1);
-        }
-
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return statusCode != 200 ? this.View("Error", this.CreateErrorModel(statusCode)) : this.View(article);
         }
 
         [HttpGet]
@@ -94,7 +80,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             if (employeeId < 0)
             {
-                return this.Error();
+                return this.View("Error");
             }
 
             var newArticleId = await this.bloggingApiClient.CreateBlogArticleAsync(articleModel, employeeId);
@@ -115,7 +101,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             if (!exists)
             {
-                return this.Error();
+                return this.View("Error");
             }
 
             var newCommentId = await this.bloggingApiClient.CreateBlogCommentAsync(commentModel, blogArticleId, customerId);
@@ -127,18 +113,18 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> DeleteCommentAsync(int commentId, int blogArticleId)
         {
-            var comment = await this.bloggingApiClient.GetBlogCommentAsync(commentId);
+            var (statusCode, comment) = await this.bloggingApiClient.GetBlogCommentAsync(commentId);
 
-            if (!comment.Item2)
+            if (statusCode != 204)
             {
-                return this.Error();
+                return this.View("Error", this.CreateErrorModel(statusCode));
             }
 
             var (customerId, exists) = await this.userManagementService.GetNorthwindCustomerId(this.User?.Identity?.Name ?? "");
 
-            if (!exists || comment.Item1.CustomerId != customerId)
+            if (!exists || comment.CustomerId != customerId)
             {
-                return this.Error();
+                return this.View("Error", this.CreateErrorModel(441));
             }
 
             await this.bloggingApiClient.DeleteBlogCommentAsync(blogArticleId, commentId);
@@ -151,15 +137,15 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         public async Task<IActionResult> UpdateArticleAsync(int articleId)
         {
             this.ViewBag.articleId = articleId;
-            var result = await this.bloggingApiClient.GetBlogArticle(articleId, 0, CommentsPageSize);
+            var (statusCode, article) = await this.bloggingApiClient.GetBlogArticle(articleId, 0, CommentsPageSize);
 
             var employeeId = await this.userManagementService.GetNorthwindEmployeeId(this.User?.Identity?.Name ?? "");
 
-            return !result.Item2 || employeeId != result.Item1.AuthorId ? 
-                this.View("Error") : this.View(new BlogArticleInputViewModel
+            return statusCode != 204 || employeeId != article.AuthorId ? 
+                this.View("Error", this.CreateErrorModel(statusCode)) : this.View(new BlogArticleInputViewModel
             {
-                Title = result.Item1.Title,
-                Text = result.Item1.Text,
+                Title = article.Title,
+                Text = article.Text,
             });
         }
 
@@ -182,28 +168,41 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> DeleteBlogArticleAsync(int blogArticleId)
         {
-            var article = await this.bloggingApiClient.GetBlogArticle(blogArticleId, 0, CommentsPageSize);
+            var (statusCode, article) = await this.bloggingApiClient.GetBlogArticle(blogArticleId, 0, CommentsPageSize);
 
-            if (!article.Item2)
+            if (statusCode != 200)
             {
                 return this.RedirectToAction("Index", "Blogging");
             }
 
             var employeeId = await this.userManagementService.GetNorthwindEmployeeId(this.User?.Identity?.Name ?? "");
 
-            if (article.Item1.AuthorId != employeeId)
+            if (article.AuthorId != employeeId)
             {
                 return this.View("Error");
             }
 
             var result = await this.bloggingApiClient.DeleteBlogArticleAsync(blogArticleId);
 
-            if (!result)
+            if (result != 204)
             {
                 return this.View("Error");
             }
 
             return this.RedirectToAction("Index", "Blogging");
+        }
+
+        private ErrorViewModel CreateErrorModel(int statusCode)
+        {
+            var message = statusCode switch
+            {
+                404 => "Blog article wasn't fount.",
+                400 => "Sorry for inconvenience. Try to send request again.",
+                441 => "Such customer haven't registered.",
+                _ => "Problem occurred during request. Sorry for inconvenience."
+            };
+
+            return new ErrorViewModel { ErrorMessage = message };
         }
     }
 }

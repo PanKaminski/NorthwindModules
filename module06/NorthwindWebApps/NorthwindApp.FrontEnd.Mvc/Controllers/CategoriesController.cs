@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NorthwindApp.FrontEnd.Mvc.Models;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using NorthwindApp.FrontEnd.Mvc.Services;
 using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Categories;
@@ -49,9 +45,9 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         {
             this.logger.LogDebug($"Request to method {nameof(CategoriesController)}/GetCategory with value {nameof(id)} = {id}.");
 
-            var category = await this.apiClient.GetCategoryAsync(id);
+            var (statusCode, category) = await this.apiClient.GetCategoryAsync(id);
 
-            return category is null ? this.View("Error") : this.View(category);
+            return statusCode != 200 ? this.View("Error", this.CreateErrorModel(statusCode)) : this.View(category);
         }
 
         [HttpGet]
@@ -77,12 +73,13 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         public async Task<IActionResult> UpdateCategoryAsync(int categoryId)
         {
             this.ViewBag.categoryId = categoryId;
-            var result = await this.apiClient.GetCategoryAsync(categoryId);
+            var (statusCode, category) = await this.apiClient.GetCategoryAsync(categoryId);
 
-            return result is null ? this.View("Error") : this.View(new CategoryInputViewModel
+            return statusCode != 200 ? this.View("Error", this.CreateErrorModel(statusCode)) :
+                this.View(new CategoryInputViewModel
             {
-                Name = result.Name,
-                Description = result.Description,
+                Name = category.Name,
+                Description = category.Description,
             });
         }
 
@@ -90,11 +87,11 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         [Authorize(Roles = "Admin, Employee")]
         public async Task<IActionResult> UpdateCategoryAsync(CategoryInputViewModel category, int categoryId)
         {
-            var isUpdated = await this.apiClient.UpdateCategoryAsync(categoryId, category);
+            var statusCode = await this.apiClient.UpdateCategoryAsync(categoryId, category);
 
-            if (!isUpdated)
+            if (statusCode != 204)
             {
-                this.View(category);
+                this.View("Error", this.CreateErrorModel(statusCode));
             }
 
             return this.RedirectToAction("GetCategory", new { id = categoryId });
@@ -103,27 +100,33 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         [HttpGet("{categoryId}/picture")]
         public async Task<ActionResult> GetPicture(int categoryId)
         {
-            return this.File(await this.apiClient.UploadImage(categoryId), "image/bmp");
+            return this.File(await this.apiClient.UploadImageAsync(categoryId), "image/bmp");
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin, Employee")]
         public async Task<IActionResult> DeleteCategoryAsync(int categoryId)
         {
-            var result = await this.apiClient.DeleteCategory(categoryId);
+            var statusCode = await this.apiClient.DeleteCategoryAsync(categoryId);
 
-            if (!result)
+            if (statusCode != 204)
             {
-                return this.View("Error");
+                this.View("Error", this.CreateErrorModel(statusCode));
             }
 
             return this.RedirectToAction("Index", "Categories");
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        private ErrorViewModel CreateErrorModel(int statusCode)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var message = statusCode switch
+            {
+                404 => "Category not fount.",
+                400 => "Sorry for inconvenience. Try to send request again.",
+                _ => "Problem occurred during request. Sorry for inconvenience."
+            };
+
+            return new ErrorViewModel { ErrorMessage = message };
         }
     }
 }

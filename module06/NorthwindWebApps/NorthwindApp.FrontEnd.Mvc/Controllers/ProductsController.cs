@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
-using NorthwindApp.FrontEnd.Mvc.Services;
 using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Products;
@@ -66,7 +65,9 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
         public async Task<IActionResult> ShowProductAsync(int id)
         {
-            return this.View(await this.apiClient.GetProductAsync(id));
+            var (statusCode, product) = await this.apiClient.GetProductAsync(id);
+
+            return statusCode == 200 ? this.View(product) : this.View("Error", this.CreateErrorModel(statusCode));
         }
 
         [HttpGet]
@@ -91,7 +92,12 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         [Authorize(Roles = "Admin, Employee")]
         public async Task<IActionResult> AddProductAsync(ProductInputViewModel productModel)
         {
-            var category = await this.categoriesApiClient.GetCategoryByNameAsync(productModel.CategoryName);
+            var (statusCode, category) = await this.categoriesApiClient.GetCategoryByNameAsync(productModel.CategoryName);
+
+            if (statusCode != 200)
+            {
+                return this.View("Error", this.CreateErrorModel(statusCode));
+            }
 
             var productId = await this.apiClient.CreateProductAsync(productModel, category?.Id);
 
@@ -108,7 +114,12 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         public async Task<IActionResult> UpdateProductAsync(int productId)
         {
             this.ViewBag.productId = productId;
-            var result = await this.apiClient.GetProductAsync(productId);
+            var (statusCode, product) = await this.apiClient.GetProductAsync(productId);
+
+            if (statusCode != 200)
+            {
+                return this.View("Error", this.CreateErrorModel(statusCode));
+            }
 
             this.ViewBag.productStatus = new SelectList(new[] { "Discontinued", "In production" });
 
@@ -121,14 +132,14 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             this.ViewBag.categoryNames = new SelectList(categoryNames);
 
-            return result is null ? this.View("Error") : this.View(new ProductInputViewModel
+            return this.View(new ProductInputViewModel
             {
-                Name = result.Name,
-                QuantityPerUnit = result.QuantityPerUnit,
-                UnitPrice = result.UnitPrice ?? 0,
-                UnitsInStock = result.UnitsInStock,
-                ProductStatus = result.Discontinued ? "Discontinued" : "In production",
-                CategoryName = (await this.categoriesApiClient.GetProductByProductAsync(result.Id))?.Name,
+                Name = product.Name,
+                QuantityPerUnit = product.QuantityPerUnit,
+                UnitPrice = product.UnitPrice ?? 0,
+                UnitsInStock = product.UnitsInStock,
+                ProductStatus = product.Discontinued ? "Discontinued" : "In production",
+                CategoryName = (await this.categoriesApiClient.GetCategoryByProductAsync(product.Id))?.Name,
             });
         }
 
@@ -136,13 +147,18 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         [Authorize(Roles = "Admin, Employee")]
         public async Task<IActionResult> UpdateProductAsync(ProductInputViewModel productModel, int productId)
         {
-            var category = await this.categoriesApiClient.GetCategoryByNameAsync(productModel.CategoryName);
+            var (getRequestStatusCode, category) = await this.categoriesApiClient.GetCategoryByNameAsync(productModel.CategoryName);
 
-            var isUpdated = await this.apiClient.UpdateProductAsync(productId, productModel, category?.Id);
-
-            if (!isUpdated)
+            if (getRequestStatusCode != 200)
             {
-                this.View(productModel);
+                return this.View("Error", this.CreateErrorModel(getRequestStatusCode));
+            }
+
+            var statusCode = await this.apiClient.UpdateProductAsync(productId, productModel, category?.Id);
+
+            if (statusCode != 204)
+            {
+                return this.View("Error", this.CreateErrorModel(statusCode));
             }
 
             return this.RedirectToAction("ShowProduct", new { id = productId });
@@ -152,15 +168,26 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         [Authorize(Roles = "Admin, Employee")]
         public async Task<IActionResult> DeleteProductAsync(int productId)
         {
-            var result = await this.apiClient.DeleteProductAsync(productId);
+            var statusCode = await this.apiClient.DeleteProductAsync(productId);
 
-            if (!result)
+            if (statusCode != 204)
             {
-                return this.View("Error");
+                return this.View("Error", this.CreateErrorModel(statusCode));
             }
 
             return this.RedirectToAction("Index", "Products");
         }
 
+        private ErrorViewModel CreateErrorModel(int statusCode)
+        {
+            var message = statusCode switch
+            {
+                404 => "Product not fount.",
+                400 => "Sorry for inconvenience. Try to send request again.",
+                _ => "Problem occurred during request. Sorry for inconvenience."
+            };
+
+            return new ErrorViewModel { ErrorMessage = message };
+        }
     }
 }

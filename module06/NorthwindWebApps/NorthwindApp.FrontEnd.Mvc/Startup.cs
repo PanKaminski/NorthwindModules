@@ -56,11 +56,6 @@ namespace NorthwindApp.FrontEnd.Mvc
                 client.BaseAddress = new Uri(serviceUrl);
             });
 
-            services.AddHttpClient<ICustomersApiClient, CustomersHttpApiClient>(client =>
-            {
-                client.BaseAddress = new Uri(serviceUrl);
-            });
-
             services.AddHttpClient<IUserManagementService, UserManagementService>(client =>
             {
                 client.BaseAddress = new Uri(serviceUrl);

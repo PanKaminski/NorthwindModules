@@ -8,18 +8,18 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Interfaces
     {
         Task<(int, IEnumerable<BlogArticleResponseViewModel>)> GetBlogArticles(int offset, int limit);
 
-        Task<(BlogArticleInfoViewModel, bool)> GetBlogArticle(int articleId, int commentsOffset, int commentsLimit);
+        Task<(int, BlogArticleInfoViewModel)> GetBlogArticle(int articleId, int commentsOffset, int commentsLimit);
 
         Task<int> CreateBlogArticleAsync(BlogArticleInputViewModel articleModel, int employeeId);
 
         Task<int> CreateBlogCommentAsync(BlogCommentInputViewModel commentModel, int blogArticleId, string customerId);
 
-        Task<(BlogCommentResponseViewModel, bool)> GetBlogCommentAsync(int commentId);
+        Task<(int, BlogCommentResponseViewModel)> GetBlogCommentAsync(int commentId);
 
-        Task<bool> DeleteBlogCommentAsync(int blogArticleId, int commentId);
+        Task<int> DeleteBlogCommentAsync(int blogArticleId, int commentId);
 
-        Task<bool> UpdateBlogArticleAsync(BlogArticleInputViewModel articleModel, int articleId);
+        Task<int> UpdateBlogArticleAsync(BlogArticleInputViewModel articleModel, int articleId);
 
-        Task<bool> DeleteBlogArticleAsync(int blogArticleId);
+        Task<int> DeleteBlogArticleAsync(int blogArticleId);
     }
 }

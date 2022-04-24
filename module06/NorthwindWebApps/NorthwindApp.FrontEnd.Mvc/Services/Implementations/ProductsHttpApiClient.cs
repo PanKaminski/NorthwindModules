@@ -52,20 +52,18 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return (count, result?.Select(p => this.mapper.Map<ProductResponseViewModel>(p)));
         }
 
-        public async Task<ProductResponseViewModel> GetProductAsync(int id)
+        public async Task<(int, ProductResponseViewModel)> GetProductAsync(int id)
         {
             var response = await this.httpClient.GetAsync($"{ApiPath}/{id}");
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null;
+                return ((int)response.StatusCode, new ProductResponseViewModel());
             }
-
-            response.EnsureSuccessStatusCode();
 
             var result = JsonConvert.DeserializeObject<Product>(await response.Content.ReadAsStringAsync());
 
-            return this.mapper.Map<ProductResponseViewModel>(result);
+            return (200, this.mapper.Map<ProductResponseViewModel>(result));
         }
 
         public async Task<int> CreateProductAsync(ProductInputViewModel productModel, int? categoryId)
@@ -80,34 +78,23 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
                 return -1;
             }
 
-            response.EnsureSuccessStatusCode();
-
             return JsonConvert.DeserializeObject<int>(await response.Content.ReadAsStringAsync());
         }
 
-        public async Task<bool> UpdateProductAsync(int id, ProductInputViewModel productModel, int? categoryId)
+        public async Task<int> UpdateProductAsync(int id, ProductInputViewModel productModel, int? categoryId)
         {
             var entity = this.mapper.Map<Product>(productModel);
             entity.CategoryId = categoryId;
             var response = await this.httpClient.PutAsJsonAsync($"{ApiPath}/{id}", entity);
 
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.BadRequest:
-                case HttpStatusCode.NotFound:
-                    return false;
-                default:
-                    response.EnsureSuccessStatusCode();
-
-                    return true;
-            }
+            return (int)response.StatusCode;
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<int> DeleteProductAsync(int id)
         {
             var response = await this.httpClient.DeleteAsync($"{ApiPath}/{id}");
 
-            return response.StatusCode != HttpStatusCode.NotFound;
+            return (int)response.StatusCode;
         }
     }
 }

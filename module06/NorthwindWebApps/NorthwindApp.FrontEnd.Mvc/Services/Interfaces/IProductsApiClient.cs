@@ -10,12 +10,12 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Interfaces
 
         Task<(int, IEnumerable<ProductResponseViewModel>)> GetProductsAsync(int offset, int limit);
 
-        Task<ProductResponseViewModel> GetProductAsync(int id);
+        Task<(int,ProductResponseViewModel)> GetProductAsync(int id);
 
         Task<int> CreateProductAsync(ProductInputViewModel productModel, int? categoryId);
 
-        Task<bool> UpdateProductAsync(int id, ProductInputViewModel productModel, int? categoryId);
+        Task<int> UpdateProductAsync(int id, ProductInputViewModel productModel, int? categoryId);
 
-        Task<bool> DeleteProductAsync(int id);
+        Task<int> DeleteProductAsync(int id);
     }
 }

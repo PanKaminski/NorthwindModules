@@ -44,13 +44,13 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return (count, result?.Select(p => this.mapper.Map<BlogArticleResponseViewModel>(p)));
         }
 
-        public async Task<(BlogArticleInfoViewModel, bool)> GetBlogArticle(int articleId, int commentsOffset, int commentsLimit)
+        public async Task<(int, BlogArticleInfoViewModel)> GetBlogArticle(int articleId, int commentsOffset, int commentsLimit)
         {
             var articleResponse = await this.httpClient.GetAsync($"{BloggingApiPath}/{articleId}");
 
-            if (articleResponse.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest)
+            if (articleResponse.StatusCode != HttpStatusCode.OK)
             {
-                return (new BlogArticleInfoViewModel(), false);
+                return ((int)articleResponse.StatusCode, new BlogArticleInfoViewModel());
             }
 
             articleResponse.EnsureSuccessStatusCode();
@@ -64,7 +64,6 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             var jsonString = await commentsResponse.Content.ReadAsStringAsync();
             var comments = JsonConvert.DeserializeObject<ICollection<BlogComment>>(jsonString);
 
-            var isSuccessfulMapping = true;
             var commentsList = new List<BlogCommentResponseViewModel>();
 
             if (comments is not null)
@@ -72,7 +71,6 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
                 foreach (var comment in comments)
                 {
                     var commentModel = await this.MapComment(comment, comment.CustomerId);
-                    isSuccessfulMapping = commentModel is not null;
 
                     commentsList.Add(commentModel);
                 }
@@ -80,7 +78,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
 
             articleModel.Comments = commentsList;
 
-            return (articleModel, isSuccessfulMapping);
+            return (200, articleModel);
         }
 
         public async Task<int> CreateBlogArticleAsync(BlogArticleInputViewModel articleModel, int employeeId)
@@ -119,13 +117,13 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return id;
         }
 
-        public async Task<(BlogCommentResponseViewModel,bool)> GetBlogCommentAsync(int commentId)
+        public async Task<(int, BlogCommentResponseViewModel)> GetBlogCommentAsync(int commentId)
         {
             var articleResponse = await this.httpClient.GetAsync($"{BloggingApiPath}/{commentId}");
 
-            if (articleResponse.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest)
+            if (articleResponse.StatusCode != HttpStatusCode.OK)
             {
-                return (new BlogCommentResponseViewModel(), false);
+                return ((int)articleResponse.StatusCode, new BlogCommentResponseViewModel());
             }
 
             articleResponse.EnsureSuccessStatusCode();
@@ -134,37 +132,28 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             var comment = this.mapper
                 .Map<BlogCommentResponseViewModel>(JsonConvert.DeserializeObject<BlogComment>(jsonObject));
 
-            return (comment, true);
+            return (200, comment);
         }
 
-        public async Task<bool> DeleteBlogCommentAsync(int blogArticleId, int commentId)
+        public async Task<int> DeleteBlogCommentAsync(int blogArticleId, int commentId)
         {
             var response = await this.httpClient.DeleteAsync($"{BloggingApiPath}/{blogArticleId}/comments/{commentId}");
 
-            return response.StatusCode != HttpStatusCode.NotFound;
-
+            return (int)response.StatusCode;
         }
 
-        public async Task<bool> UpdateBlogArticleAsync(BlogArticleInputViewModel articleModel, int articleId)
+        public async Task<int> UpdateBlogArticleAsync(BlogArticleInputViewModel articleModel, int articleId)
         {
             var response = await this.httpClient.PutAsJsonAsync($"{BloggingApiPath}/{articleId}", this.mapper.Map<BlogArticle>(articleModel));
 
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.BadRequest:
-                case HttpStatusCode.NotFound:
-                    return false;
-                default:
-                    response.EnsureSuccessStatusCode();
-                    return true;
-            }
+            return (int)response.StatusCode;
         }
 
-        public async Task<bool> DeleteBlogArticleAsync(int blogArticleId)
+        public async Task<int> DeleteBlogArticleAsync(int blogArticleId)
         {
             var response = await this.httpClient.DeleteAsync($"{BloggingApiPath}/{blogArticleId}");
 
-            return response.StatusCode != HttpStatusCode.NotFound;
+            return (int)response.StatusCode;
         }
 
         private async Task<BlogCommentResponseViewModel> MapComment(BlogComment comment, string customerId)

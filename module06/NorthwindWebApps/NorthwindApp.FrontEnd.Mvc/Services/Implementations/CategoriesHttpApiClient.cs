@@ -29,21 +29,19 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             this.httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<CategoryResponseViewModel> GetCategoryAsync(int id)
+        public async Task<(int, CategoryResponseViewModel)> GetCategoryAsync(int id)
         {
             var response = await this.httpClient.GetAsync($"{ApiPath}/{id}");
 
-            if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest)
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null;
+                return ((int)response.StatusCode, new CategoryResponseViewModel());
             }
-
-            response.EnsureSuccessStatusCode();
 
             var jsonObject = await response.Content.ReadAsStringAsync();
             var category = JsonConvert.DeserializeObject<ProductCategory>(jsonObject);
 
-            return this.mapper.Map<CategoryResponseViewModel>(category);
+            return (200, this.mapper.Map<CategoryResponseViewModel>(category));
         }
 
         public async Task<(int, IEnumerable<CategoryResponseViewModel>)> GetCategoriesAsync(int offset, int limit)
@@ -77,24 +75,22 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             }
         }
 
-        public async Task<CategoryResponseViewModel> GetCategoryByNameAsync(string name)
+        public async Task<(int, CategoryResponseViewModel)> GetCategoryByNameAsync(string name)
         {
             var response = await this.httpClient.GetAsync($"{ApiPath}/name/{name}");
 
-            if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest)
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null;
+                return ((int)response.StatusCode, new CategoryResponseViewModel());
             }
-
-            response.EnsureSuccessStatusCode();
 
             var jsonObject = await response.Content.ReadAsStringAsync();
             var category = JsonConvert.DeserializeObject<ProductCategory>(jsonObject);
 
-            return this.mapper.Map<CategoryResponseViewModel>(category);
+            return (200, this.mapper.Map<CategoryResponseViewModel>(category));
         }
 
-        public async Task<CategoryResponseViewModel> GetProductByProductAsync(int productId)
+        public async Task<CategoryResponseViewModel> GetCategoryByProductAsync(int productId)
         {
             var response = await this.httpClient.GetAsync($"{ApiPath}/product/{productId}");
 
@@ -132,28 +128,14 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return id;
         }
 
-        public async Task<bool> UpdateCategoryAsync(int id, CategoryInputViewModel category)
+        public async Task<int> UpdateCategoryAsync(int id, CategoryInputViewModel category)
         {
             var response = await this.httpClient.PutAsJsonAsync($"{ApiPath}/{id}", this.mapper.Map<ProductCategory>(category));
 
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.BadRequest:
-                case HttpStatusCode.NotFound:
-                    return false;
-                default:
-                    response.EnsureSuccessStatusCode();
-
-                    if (category.Image is not null)
-                    {
-                        await this.httpClient.PutAsJsonAsync($"{ApiPath}/{id}/ picture", category.Image);
-                    }
-
-                    return true;
-            }
+            return (int)response.StatusCode;
         }
 
-        public async Task<byte[]> UploadImage(int categoryId)
+        public async Task<byte[]> UploadImageAsync(int categoryId)
         {
             var response = await this.httpClient.GetAsync($"{ApiPath}/{categoryId}/picture");
 
@@ -165,11 +147,11 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return await response.Content.ReadAsByteArrayAsync();
         }
 
-        public async Task<bool> DeleteCategory(int categoryId)
+        public async Task<int> DeleteCategoryAsync(int categoryId)
         {
             var response = await this.httpClient.DeleteAsync($"{ApiPath}/{categoryId}");
 
-            return response.StatusCode != HttpStatusCode.NotFound;
+            return (int)response.StatusCode;
         }
     }
 }
