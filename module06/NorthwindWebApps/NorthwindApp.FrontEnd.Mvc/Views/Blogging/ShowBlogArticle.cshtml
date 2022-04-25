@@ -11,11 +11,11 @@
         @if (this.User.IsInRole("Employee") && Model.AuthorId == ViewBag.northwindUserId)
         {
             <form method="post" class="d-flex align-items-center" asp-controller="Blogging" asp-action="DeleteBlogArticle" asp-route-articleId="@Model.Id">
-                <span class="font-weight-lighter">                            
+                <span class="font-weight-lighter">
                     <a class="text-secondary" asp-controller="Blogging" asp-action="UpdateArticle" asp-route-articleId="@Model.Id">Edit</a>
                 </span>
                 <div class="btn-group d-inline" role="group">
-                    <input type="submit" class="btn btn-link text-danger ml-2 p-0 font-weight-lighter" value="Delete"/>
+                    <input type="submit" class="btn btn-link text-danger ml-2 p-0 font-weight-lighter" value="Delete" />
                 </div>
             </form>
         }
@@ -23,20 +23,33 @@
     </div>
 </div>
 
+@if (this.User.IsInRole("Customer"))
+{
+
+    <form class="mt-2" id="commentForm">
+        <div class="form-group">
+            <label>Comment</label>
+            <textarea class="form-control" rows="3" name="Text" placeholder="Comment text."></textarea>
+        </div>
+        <button class="btn btn-success" type="button" onclick="submitComment()">Leave comment</button>
+    </form>
+}
+
 <div class="col-6 mx-auto">
     @foreach (var comment in Model.Comments)
     {
         <div class="d-flex justify-content-center py-2">
-            <div class="bg-white rounded shadow-lg py-2 px-2"> <span class="font-weight-lighter">@comment.Text</span>
+            <div class="bg-white rounded shadow-lg py-2 px-2" style="min-width: 200px;">
+                <span class="font-weight-lighter">@comment.Text</span>
                 <div class="d-flex justify-content-between py-1 pt-2">
-                    <div>               
+                    <div>
                         <i class="far fa-user"></i>
                         <span class="ml-2 font-weight-lighter">@comment?.Author?.ContactName</span>
                     </div>
-                    @if (this.User.IsInRole("Customer"))
+                    @if (this.User.IsInRole("Customer") && comment.CustomerId == ViewBag.northwindUserId)
                     {
                         <div>
-                            <span class="mr-1 font-weight-lighter">                            
+                            <span class="mr-1 font-weight-lighter">
                                 Edit
                             </span>
                         </div>
@@ -46,3 +59,25 @@
         </div>
     }
 </div>
+
+<script type="text/javascript">
+    function submitComment() {
+        var commentData = $("#commentForm").serialize();
+        console.log(commentData);
+
+        $.ajax({
+            url: "@Url.Action("AddComment", "Blogging", new { blogArticleId = Model.Id })",
+            type: "POST",
+            data: commentData,
+            success: function(response) {
+                window.location.reload();
+            },
+
+            error: function(xhr, status, err) {
+                if (xhr.status == 401) {
+                    window.location.replace('@Url.Action("Welcome", "Account")');
+                    }
+            }
+        });
+    }
+</script>

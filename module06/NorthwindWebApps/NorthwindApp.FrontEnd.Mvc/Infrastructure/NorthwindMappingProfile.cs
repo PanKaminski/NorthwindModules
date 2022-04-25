@@ -48,6 +48,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Infrastructure
                     opt.MapFrom(src => !string.IsNullOrEmpty(src.HireDate) ? DateTime.Parse(src.HireDate) : (DateTime?)null))
                 .ForMember(dest => dest.BirthDate, opt =>
                     opt.MapFrom(src => !string.IsNullOrEmpty(src.BirthDate) ? DateTime.Parse(src.BirthDate) : (DateTime?)null));
+            this.CreateMap<CustomerInputViewModel, Customer>();
         }
     }
 }

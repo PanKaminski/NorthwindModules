@@ -1,0 +1,72 @@
+﻿@model NorthwindApp.FrontEnd.Mvc.ViewModels.Customers.CustomerInputViewModel
+
+@{
+    ViewBag.Title = "Provide customer data";
+}
+
+<h2>Sign up as a customer</h2>
+
+<form method="post" asp-controller="Account" asp-action="Welcome" enctype="multipart/form-data">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="CompanyName"></label>
+            <input class="form-control" asp-for="CompanyName" />
+            <span asp-validation-for="CompanyName"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="ContactName"></label>
+            <input class="form-control" asp-for="ContactName" />
+            <span asp-validation-for="ContactName"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="ContactTitle"></label>
+            <input class="form-control" asp-for="ContactTitle" />
+            <span asp-validation-for="ContactTitle"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label asp-for="Country"></label>
+            <input class="form-control" asp-for="Country" />
+            <span asp-validation-for="Country"></span>
+        </div>
+        <div class="form-group col-md-4">
+            <label asp-for="Region"></label>
+            <input class="form-control" asp-for="Region" />
+            <span asp-validation-for="Region"></span>
+        </div>
+        <div class="form-group col-md-4">
+            <label asp-for="City"></label>
+            <input class="form-control" asp-for="City" />
+            <span asp-validation-for="City"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="Address"></label>
+            <input class="form-control" asp-for="Address" />
+            <span asp-validation-for="Address"></span>
+        </div>
+        <div class="form-group col-md-3">
+            <label asp-for="PostalCode"></label>
+            <input class="form-control" asp-for="PostalCode" />
+            <span asp-validation-for="PostalCode"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label asp-for="Phone"></label>
+            <input class="form-control" asp-for="Phone" />
+            <span asp-validation-for="Phone"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Fax"></label>
+            <input class="form-control" asp-for="Fax" />
+            <span asp-validation-for="Fax"></span>
+        </div>
+    </div>
+    <div>
+        <input class="btn btn-primary" type="submit" value="Sign Up" />
+    </div>
+</form>

@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
+using NorthwindApp.FrontEnd.Mvc.ViewModels;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Account;
+using NorthwindApp.FrontEnd.Mvc.ViewModels.Customers;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Employees;
 
 namespace NorthwindApp.FrontEnd.Mvc.Controllers
@@ -47,7 +49,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             if (isCreated)
             {
-                var id = await this.userManagementService.GenerateClaims(registerModel.Email);
+                var id = await this.userManagementService.GenerateClaimsAsync(registerModel.Email);
 
                 await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(id));
@@ -77,7 +79,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             if (await this.userManagementService.VerifyCredentialsAsync(loginModel))
             {
-                var id = await this.userManagementService.GenerateClaims(loginModel.Email);
+                var id = await this.userManagementService.GenerateClaimsAsync(loginModel.Email);
 
                 await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(id));
@@ -128,8 +130,59 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.View(employeeModel);
             }
 
-            await this.userManagementService.CreateEmployee(userId, employeeModel);
+            await this.userManagementService.CreateEmployeeAsync(userId, employeeModel);
             return this.RedirectToAction("ViewRoles");
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> Welcome(string returnUrl = null)
+        {
+            var creationCheck = await this.userManagementService.GetNorthwindCustomerIdAsync(this.User?.Identity?.Name ?? string.Empty);
+
+            if (creationCheck.Item2)
+            {
+                return this.RedirectToAction("Index", "Categories");
+            }
+
+            return this.View(new CustomerInputViewModel
+            {
+                ReturnUrl = returnUrl,
+            });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> Welcome(CustomerInputViewModel customerModel)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(customerModel);
+            }
+
+            var (statusCode, id) = await this.userManagementService
+                .CreateCustomerAsync(customerModel, this.User?.Identity?.Name ?? string.Empty);
+
+            if (statusCode != 200)
+            {
+                return this.View("Error", this.CreateErrorModel(statusCode));
+            }
+
+            return !string.IsNullOrEmpty(customerModel.ReturnUrl) && this.Url.IsLocalUrl(customerModel.ReturnUrl)
+                ? this.Redirect(customerModel.ReturnUrl) : this.RedirectToAction("Index", "Categories");
+        }
+
+        private ErrorViewModel CreateErrorModel(int statusCode)
+        {
+            var message = statusCode switch
+            {
+                404 => "User not fount.",
+                400 => "Sorry for inconvenience. Try to send request again.",
+                _ => "Problem occurred during request. Sorry for inconvenience."
+            };
+
+            return new ErrorViewModel { ErrorMessage = message };
+        }
+
     }
 }

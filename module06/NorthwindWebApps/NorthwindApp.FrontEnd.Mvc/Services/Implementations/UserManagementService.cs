@@ -14,7 +14,9 @@ using NorthwindApp.FrontEnd.Mvc.Identity.Models;
 using NorthwindApp.FrontEnd.Mvc.Services.Interfaces;
 using NorthwindApp.FrontEnd.Mvc.ViewModels;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Account;
+using NorthwindApp.FrontEnd.Mvc.ViewModels.Customers;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Employees;
+using Customer = Northwind.Services.Customers.Customer;
 
 namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
 {
@@ -65,7 +67,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return employees?.Select(e => e.LastName + " " + e.FirstName);
         }
 
-        public async Task<UserResponseViewModel> Get(int userId)
+        public async Task<UserResponseViewModel> GetUserAsync(int userId)
         {
             var user = await this.context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -118,7 +120,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return false;
         }
 
-        public async Task<ClaimsIdentity> GenerateClaims(string email)
+        public async Task<ClaimsIdentity> GenerateClaimsAsync(string email)
         {
             var user = await this.context.Users
                 .Include(u => u.Role)
@@ -133,7 +135,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
         }
 
-        public async Task<int> CreateEmployee(int userId, EmployeeInputViewModel employeeModel)
+        public async Task<int> CreateEmployeeAsync(int userId, EmployeeInputViewModel employeeModel)
         {
             var employeeEntity = this.mapper.Map<Northwind.Services.Employees.Employee>(employeeModel);
 
@@ -169,7 +171,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return id;
         }
 
-        public async Task<int> GetNorthwindEmployeeId(string email)
+        public async Task<int> GetNorthwindEmployeeIdAsync(string email)
         {
             if (string.IsNullOrEmpty(email))
             {
@@ -185,7 +187,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             return connectionEntity?.NorthwindId ?? -1;
         }
 
-        public async Task<(string, bool)> GetNorthwindCustomerId(string email)
+        public async Task<(string, bool)> GetNorthwindCustomerIdAsync(string email)
         {
             if (string.IsNullOrEmpty(email))
             {
@@ -202,6 +204,33 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             var result = connectionEntity?.NorthwindId is not null;
 
             return (result ? connectionEntity.NorthwindId : "", result);
+        }
+
+        public async Task<(int, string)> CreateCustomerAsync(CustomerInputViewModel customerModel, string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                throw new ArgumentException("Email is null or empty.");
+            }
+
+            var customerEntity = this.mapper.Map<Customer>(customerModel);
+
+            var response = await this.httpClient.PostAsJsonAsync(CustomersApiPath, customerEntity);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return ((int)response.StatusCode, String.Empty);
+            }
+
+            string id = await response.Content.ReadAsStringAsync();
+
+            var user = await this.context.Users.SingleOrDefaultAsync(u => u.Email == email);
+            user.Role = await this.context.Roles.FirstOrDefaultAsync(r => r.Name == "Customer");
+
+            await this.context.CustomersTransfer.AddAsync(new Identity.Models.Customer { UserId = user.Id, NorthwindId = id });
+            await this.context.SaveChangesAsync();
+
+            return (200, id);
         }
 
         private async Task<int> GetIdByFullName(string firstName, string lastName)

@@ -103,7 +103,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
         {
             var entity = this.mapper.Map<BlogComment>(commentModel);
             entity.CustomerId = customerId;
-            var response = await this.httpClient.PostAsJsonAsync($"BloggingApiPath/{blogArticleId}/comments", entity);
+            var response = await this.httpClient.PostAsJsonAsync($"{BloggingApiPath}/{blogArticleId}/comments", entity);
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {

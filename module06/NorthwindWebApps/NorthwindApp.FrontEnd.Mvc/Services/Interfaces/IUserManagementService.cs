@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Northwind.Services.Employees;
 using NorthwindApp.FrontEnd.Mvc.ViewModels;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Account;
+using NorthwindApp.FrontEnd.Mvc.ViewModels.Customers;
 using NorthwindApp.FrontEnd.Mvc.ViewModels.Employees;
 
 namespace NorthwindApp.FrontEnd.Mvc.Services.Interfaces
@@ -14,18 +15,20 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Interfaces
 
         Task<IEnumerable<string>> GetEmployeeNames();
 
-        Task<UserResponseViewModel> Get(int userId);
+        Task<UserResponseViewModel> GetUserAsync(int userId);
 
         Task<bool> RegisterAsync(RegisterViewModel registerModel);
 
         Task<bool> VerifyCredentialsAsync(LoginViewModel loginModel);
 
-        Task<ClaimsIdentity> GenerateClaims(string email);
+        Task<ClaimsIdentity> GenerateClaimsAsync(string email);
 
-        Task<int> CreateEmployee(int userId, EmployeeInputViewModel employeeModel);
+        Task<int> CreateEmployeeAsync(int userId, EmployeeInputViewModel employeeModel);
 
-        Task<int> GetNorthwindEmployeeId(string email);
+        Task<int> GetNorthwindEmployeeIdAsync(string email);
 
-        Task<(string, bool)> GetNorthwindCustomerId(string email);
+        Task<(string, bool)> GetNorthwindCustomerIdAsync(string email);
+
+        Task<(int, string)> CreateCustomerAsync(CustomerInputViewModel customerModel, string email);
     }
 }

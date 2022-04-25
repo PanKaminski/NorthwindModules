@@ -49,12 +49,12 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 if (this.User.IsInRole("Employee"))
                 {
                     this.ViewBag.northwindUserId =
-                        await this.userManagementService.GetNorthwindEmployeeId(this.User.Identity.Name);
+                        await this.userManagementService.GetNorthwindEmployeeIdAsync(this.User.Identity.Name);
                 }
                 else if(this.User.IsInRole("Customer"))
                 {
                     this.ViewBag.northwindUserId =
-                        await this.userManagementService.GetNorthwindCustomerId(this.User.Identity.Name);
+                        (await this.userManagementService.GetNorthwindCustomerIdAsync(this.User.Identity.Name)).Item1;
                 }
             }
             return statusCode != 200 ? this.View("Error", this.CreateErrorModel(statusCode)) : this.View(article);
@@ -76,7 +76,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.View(articleModel);
             }
 
-            var employeeId = await this.userManagementService.GetNorthwindEmployeeId(this.User?.Identity?.Name ?? "");
+            var employeeId = await this.userManagementService.GetNorthwindEmployeeIdAsync(this.User?.Identity?.Name ?? "");
 
             if (employeeId < 0)
             {
@@ -92,21 +92,16 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> AddCommentAsync(BlogCommentInputViewModel commentModel, int blogArticleId)
         {
-            if (!this.ModelState.IsValid)
-            {
-                return this.View(commentModel);
-            }
-
-            var (customerId, exists) = await this.userManagementService.GetNorthwindCustomerId(this.User?.Identity?.Name ?? "");
+            var (customerId, exists) = await this.userManagementService.GetNorthwindCustomerIdAsync(this.User?.Identity?.Name ?? "");
 
             if (!exists)
             {
-                return this.View("Error");
+                return this.Unauthorized();
             }
 
             var newCommentId = await this.bloggingApiClient.CreateBlogCommentAsync(commentModel, blogArticleId, customerId);
-
-            return this.RedirectToAction("ShowBlogArticle", new { articleId = newCommentId });
+            JsonResult response = new JsonResult(true);
+            return response;
         }
 
         [HttpPost]
@@ -120,7 +115,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.View("Error", this.CreateErrorModel(statusCode));
             }
 
-            var (customerId, exists) = await this.userManagementService.GetNorthwindCustomerId(this.User?.Identity?.Name ?? "");
+            var (customerId, exists) = await this.userManagementService.GetNorthwindCustomerIdAsync(this.User?.Identity?.Name ?? "");
 
             if (!exists || comment.CustomerId != customerId)
             {
@@ -139,7 +134,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
             this.ViewBag.articleId = articleId;
             var (statusCode, article) = await this.bloggingApiClient.GetBlogArticle(articleId, 0, CommentsPageSize);
 
-            var employeeId = await this.userManagementService.GetNorthwindEmployeeId(this.User?.Identity?.Name ?? "");
+            var employeeId = await this.userManagementService.GetNorthwindEmployeeIdAsync(this.User?.Identity?.Name ?? "");
 
             return statusCode != 204 || employeeId != article.AuthorId ? 
                 this.View("Error", this.CreateErrorModel(statusCode)) : this.View(new BlogArticleInputViewModel
@@ -175,7 +170,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
                 return this.RedirectToAction("Index", "Blogging");
             }
 
-            var employeeId = await this.userManagementService.GetNorthwindEmployeeId(this.User?.Identity?.Name ?? "");
+            var employeeId = await this.userManagementService.GetNorthwindEmployeeIdAsync(this.User?.Identity?.Name ?? "");
 
             if (article.AuthorId != employeeId)
             {

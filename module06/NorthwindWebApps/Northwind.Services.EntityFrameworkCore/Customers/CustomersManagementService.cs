@@ -61,7 +61,18 @@ namespace Northwind.Services.EntityFrameworkCore.Customers
                 return string.Empty;
             }
 
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var id = new string(Enumerable.Repeat(chars, 5).Select(s => s[random.Next(s.Length)]).ToArray());
+
+            while (this.dbContext.Customers.Select(c => c.CustomerId).Contains(id))
+            {
+                id = new string(Enumerable.Repeat(chars, 5).Select(s => s[random.Next(s.Length)]).ToArray());
+            }
+
             var customerEntity = this.mapper.Map<Entities.Customer>(employee);
+
+            customerEntity.CustomerId = id;
 
             if (await this.dbContext.Customers.ContainsAsync(customerEntity))
             {
