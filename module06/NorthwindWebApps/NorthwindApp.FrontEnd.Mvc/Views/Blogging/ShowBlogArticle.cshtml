@@ -10,13 +10,11 @@
         <p class="card-text">@Model.Text</p>
         @if (this.User.IsInRole("Employee") && Model.AuthorId == ViewBag.northwindUserId)
         {
-            <form method="post" class="d-flex align-items-center" asp-controller="Blogging" asp-action="DeleteBlogArticle" asp-route-articleId="@Model.Id">
+            <form method="post" class="d-flex align-items-center" asp-controller="Blogging" asp-action="DeleteBlogArticle" asp-route-blogArticleId="@Model.Id">
                 <span class="font-weight-lighter">
                     <a class="text-secondary" asp-controller="Blogging" asp-action="UpdateArticle" asp-route-articleId="@Model.Id">Edit</a>
                 </span>
-                <div class="btn-group d-inline" role="group">
-                    <input type="submit" class="btn btn-link text-danger ml-2 p-0 font-weight-lighter" value="Delete" />
-                </div>
+                <input type="submit" class="btn btn-link text-danger ml-2 p-0 font-weight-lighter" value="Delete"/>
             </form>
         }
 
@@ -48,15 +46,25 @@
                     </div>
                     @if (this.User.IsInRole("Customer") && comment.CustomerId == ViewBag.northwindUserId)
                     {
-                        <div>
-                            <span class="mr-1 font-weight-lighter">
+                        <form method="post" class="d-flex align-items-center" asp-controller="Blogging" asp-action="DeleteComment" asp-route-commentId="@comment.Id" asp-route-blogArticleId="@Model.Id">
+                            <span class="mr-1 font-weight-lighter" onclick="showEditCommentForm(@comment.Id, @comment.Text)" style="cursor: pointer">
                                 Edit
                             </span>
-                        </div>
+                            <input type="submit" class="btn btn-link text-danger ml-2 p-0 font-weight-lighter" value="Delete" />
+                        </form>
                     }
                 </div>
             </div>
         </div>
+
+        <form class="mt-2" id="editForm" style="display: none">
+            <div class="form-group">
+                <input />
+                <label>Comment</label>
+                <textarea class="form-control" rows="3" name="Text" placeholder="Comment text."></textarea>
+            </div>
+            <button class="btn btn-secondary" type="button" onclick="editComment()">Save changes</button>
+        </form>
     }
 </div>
 

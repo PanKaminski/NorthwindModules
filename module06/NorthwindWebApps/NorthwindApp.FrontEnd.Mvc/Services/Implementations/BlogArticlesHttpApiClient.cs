@@ -119,7 +119,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
 
         public async Task<(int, BlogCommentResponseViewModel)> GetBlogCommentAsync(int commentId)
         {
-            var articleResponse = await this.httpClient.GetAsync($"{BloggingApiPath}/{commentId}");
+            var articleResponse = await this.httpClient.GetAsync($"{BloggingApiPath}/comments/{commentId}");
 
             if (articleResponse.StatusCode != HttpStatusCode.OK)
             {

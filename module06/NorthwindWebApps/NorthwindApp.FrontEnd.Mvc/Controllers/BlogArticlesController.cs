@@ -110,7 +110,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
         {
             var (statusCode, comment) = await this.bloggingApiClient.GetBlogCommentAsync(commentId);
 
-            if (statusCode != 204)
+            if (statusCode != 200)
             {
                 return this.View("Error", this.CreateErrorModel(statusCode));
             }
