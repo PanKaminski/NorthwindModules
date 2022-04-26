@@ -47,8 +47,8 @@
                     @if (this.User.IsInRole("Customer") && comment.CustomerId == ViewBag.northwindUserId)
                     {
                         <form method="post" class="d-flex align-items-center" asp-controller="Blogging" asp-action="DeleteComment" asp-route-commentId="@comment.Id" asp-route-blogArticleId="@Model.Id">
-                            <span class="mr-1 font-weight-lighter" onclick="showEditCommentForm(@comment.Id, @comment.Text)" style="cursor: pointer">
-                                Edit
+                            <span class="mr-1 font-weight-lighter">
+                                <a aria-expanded="false" href="@($"#editComment{comment.Id}")" data-toggle="collapse">Edit</a>
                             </span>
                             <input type="submit" class="btn btn-link text-danger ml-2 p-0 font-weight-lighter" value="Delete" />
                         </form>
@@ -56,15 +56,19 @@
                 </div>
             </div>
         </div>
-
-        <form class="mt-2" id="editForm" style="display: none">
-            <div class="form-group">
-                <input />
-                <label>Comment</label>
-                <textarea class="form-control" rows="3" name="Text" placeholder="Comment text."></textarea>
+        @if (this.User.IsInRole("Customer") && comment.CustomerId == ViewBag.northwindUserId)
+        {
+            <div class="collapse" id="@($"editComment{comment.Id}")">
+                <form class="mt-2" id="@($"editCommentForm{comment.Id}")">
+                    <div class="form-group">
+                        <input type="hidden" name="CommentId" value="@comment.Id"/>
+                        <label>Edit comment</label>
+                        <textarea class="form-control" rows="3" name="Text" placeholder="Comment text.">@comment.Text</textarea>
+                    </div>
+                    <button class="btn btn-secondary" type="button" onclick="editComment(@comment.Id)">Save changes</button>
+                </form>
             </div>
-            <button class="btn btn-secondary" type="button" onclick="editComment()">Save changes</button>
-        </form>
+        }
     }
 </div>
 
@@ -74,7 +78,7 @@
         console.log(commentData);
 
         $.ajax({
-            url: "@Url.Action("AddComment", "Blogging", new { blogArticleId = Model.Id })",
+            url: "@Url.Action("AddComment", "Blogging", new { blogArticleId = Model.Id})",
             type: "POST",
             data: commentData,
             success: function(response) {
@@ -85,6 +89,26 @@
                 if (xhr.status == 401) {
                     window.location.replace('@Url.Action("Welcome", "Account")');
                     }
+            }
+        });
+    }
+
+    function editComment(commentId) {
+        var commentData = (`#editCommentForm${commentId}`).serialize();
+        console.log(commentData);
+
+        $.ajax({
+            url: "@Url.Action("EditComment", "Blogging", new { blogArticleId = Model.Id })",
+            type: "POST",
+            data: commentData,
+            success: function(response) {
+                window.location.reload();
+            },
+
+            error: function(xhr, status, err) {
+                if (xhr.status == 401) {
+                    window.location.replace('@Url.Action("Welcome", "Account")');
+                }
             }
         });
     }
