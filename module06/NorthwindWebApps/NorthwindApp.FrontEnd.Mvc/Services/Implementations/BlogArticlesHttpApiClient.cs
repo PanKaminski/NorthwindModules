@@ -103,6 +103,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
         {
             var entity = this.mapper.Map<BlogComment>(commentModel);
             entity.CustomerId = customerId;
+
             var response = await this.httpClient.PostAsJsonAsync($"{BloggingApiPath}/{blogArticleId}/comments", entity);
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -115,6 +116,16 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Implementations
             int id = JsonConvert.DeserializeObject<int>(await response.Content.ReadAsStringAsync());
 
             return id;
+        }
+
+        public async Task<int> EditBlogCommentAsync(BlogCommentEditViewModel commentModel, int blogArticleId, string customerId)
+        {
+            var entity = this.mapper.Map<BlogComment>(commentModel);
+            entity.CustomerId = customerId;
+
+            var response = await this.httpClient.PutAsJsonAsync($"{BloggingApiPath}/{blogArticleId}/comments/{commentModel.CommentId}", entity);
+
+            return (int)response.StatusCode;
         }
 
         public async Task<(int, BlogCommentResponseViewModel)> GetBlogCommentAsync(int commentId)

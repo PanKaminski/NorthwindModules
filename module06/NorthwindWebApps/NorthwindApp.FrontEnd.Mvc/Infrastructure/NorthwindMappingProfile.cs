@@ -31,6 +31,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Infrastructure
             this.CreateMap<BlogArticle, BlogArticleInfoViewModel>();
             this.CreateMap<BlogComment, BlogCommentResponseViewModel>();
             this.CreateMap<BlogArticleInputViewModel, BlogArticle>();
+            this.CreateMap<BlogCommentEditViewModel, BlogComment>();
             this.CreateMap<BlogCommentInputViewModel, BlogComment>();
             this.CreateMap<Customer, CustomerResponseViewModel>();
             this.CreateMap<User, UserResponseViewModel>()

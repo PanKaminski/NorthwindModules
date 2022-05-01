@@ -103,6 +103,28 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
             return response;
         }
 
+        public async Task<IActionResult> EditCommentAsync(BlogCommentEditViewModel commentModel, int blogArticleId)
+        {
+            var (customerId, exists) = await this.userManagementService.GetNorthwindCustomerIdAsync(this.User?.Identity?.Name ?? "");
+
+            if (!exists)
+            {
+                return this.Unauthorized();
+            }
+
+            var resultStatusCode = await this.bloggingApiClient.EditBlogCommentAsync(commentModel, blogArticleId, customerId);
+
+            if (resultStatusCode == 204)
+            {
+                JsonResult response = new JsonResult(true);
+                return response;
+            }
+            else
+            {
+                return this.View("Error", this.CreateErrorModel(resultStatusCode));
+            }
+        }
+
         [HttpPost]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> DeleteCommentAsync(int commentId, int blogArticleId)

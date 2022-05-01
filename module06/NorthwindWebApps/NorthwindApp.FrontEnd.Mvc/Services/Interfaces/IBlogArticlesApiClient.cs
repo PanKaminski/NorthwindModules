@@ -14,6 +14,8 @@ namespace NorthwindApp.FrontEnd.Mvc.Services.Interfaces
 
         Task<int> CreateBlogCommentAsync(BlogCommentInputViewModel commentModel, int blogArticleId, string customerId);
 
+        Task<int> EditBlogCommentAsync(BlogCommentEditViewModel commentModel, int blogArticleId, string customerId);
+
         Task<(int, BlogCommentResponseViewModel)> GetBlogCommentAsync(int commentId);
 
         Task<int> DeleteBlogCommentAsync(int blogArticleId, int commentId);
