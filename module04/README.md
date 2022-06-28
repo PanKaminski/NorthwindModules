@@ -30,7 +30,7 @@ __Внимание!__ В этом модуле используется боль
 
 1. Создайте решение _NorthwindWebApps_:
 
-![NorthwindWebApps: Services](northwindwebapps-services.png)
+![NorthwindWebApps: Services](Pictures/northwindwebapps-services.png)
 
 2. В проект _Northwind.Services_ добавьте файлы:
 
@@ -45,11 +45,11 @@ __Внимание!__ В этом модуле используется боль
 
 | Operation        | HTTP Verb | URI                  | Request body | Response body |
 | ---------------- | --------- | -------------------- | ------------ |  ------------ |
-| Create           |           | /api/categories      |              |               |
-| Read (all items) |           | /api/categories      |              |               |
-| Read (item)      |           | /api/categories/{id} |              |               |
-| Update           |           | /api/categories/{id} |              |               |
-| Delete           |           | /api/categories/{id} |              |               |
+| Create           |  POST   | /api/categories      |      New category        |       -        |
+| Read (all items) |  GET     | /api/categories      |      -        |       Collection of categories        |
+| Read (item)      |  GET      | /api/categories/{id} |     -         |   Category with specified id    |
+| Update           |  PUT      | /api/categories/{id} |     New category         |       -        |
+| Delete           |  DELETE     | /api/categories/{id} |       -       |       -        |
 
 6. Реализуйте все методы для _ProductCategoriesController_, используя методы интерфейса _IProductManagementService_. См. [Controller action return types in ASP.NET Core web API](https://docs.microsoft.com/en-us/aspnet/core/web-api/action-return-types).
 7. Реализуйте в _ProductManagementService_ использованные методы интерфейса _IProductManagementService_. В качестве хранилища используйте in-memory database. Добавьте классы - контекст _NorthwindContext_ и необходимые сущности. Запустите приложение и проверьте работоспособность методов при помощи Postman.
@@ -57,13 +57,13 @@ __Внимание!__ В этом модуле используется боль
 
 | Operation        | HTTP Verb | URI                  | Request body | Response body |
 | ---------------- | --------- | -------------------- | ------------ | ------------- |
-| Create           |           |                      |              |               |
-| Read (all items) |           |                      |              |               |
-| Read (item)      |           |                      |              |               |
-| Update           |           |                      |              |               |
-| Delete           |           |                      |              |               |
+| Create           |    POST       |    /api/products     |   New product   |    -           |
+| Read (all items) |    GET       |    /api/products      |     -         |   Collection of products            |
+| Read (item)      |    GET       |    /api/products/{id}     |    -          |      Product with specified id         |
+| Update           |    PUT       |     /api/products/{id}   |   New product     |     -          |
+| Delete           |    DELETE       |  /api/products/{id}    |   -           |     -          |
 
-9. Реализуйте в _ProductCategoriesController_ новые методы для управления картинкой (поток байтов) для категории. См. [Upload files in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads), [IFormFile](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.iformfile) и [ControllerBase.File](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file).
+9. Реализуйте в _ProductCategoriesController_ новые методы для управления картинкой (поток байтов) для категории. См. [Upload files in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads), [IFormFile](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.iformfile) и [ControllerBase.File](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file). *[_Данные изображения состоят из OLE header (78 байт) и BMP._](https://mathematica.stackexchange.com/questions/184743/how-to-extract-bitmap-image-from-sql-records)
 
 | Operation        | HTTP Verb | URI                                  | Request body    | Response body  |
 | ---------------- | --------- | ------------------------------------ | --------------- | -------------- |
@@ -73,7 +73,7 @@ __Внимание!__ В этом модуле используется боль
 
 11. Проанализируйте зависимости:
 
-![NorthwindWebApps: IProductManagementService](northwindapiapp-iproductmanagementservice.png)
+![NorthwindWebApps: IProductManagementService](Pictures/northwindapiapp-iproductmanagementservice.png)
 
 12. Выделите из интерфейса _IProductManagementService_ интерфейсы для работы с категориями и картинками - _IProductCategoryManagementService_ и _IProductCategoryPicturesService_, перенесите в новые интерфейсы соответствующие методы, зарегистрируйте интерфейсы как сервисы и исправьте конструкторы соответствующих контроллеров. См. [I: Принцип разделения интерфейса](https://refactoring.guru/ru/didp/principles/solid-principles/isp).
 
@@ -81,11 +81,11 @@ __Внимание!__ В этом модуле используется боль
 
 14. Добавьте библиотеку _Northwind.Services.EntityFrameworkCore_, исправьте зависимости на nuget-пакеты, перенесите в библиотеку код сервисов (_ProductManagementService_,  _ProductCategoryManagementService_, _ProductCategoryPictureService_) и все необходимые классы.
 
-![NorthwindWebApps: EntityFramework Core](northwind-webapi-entityframeworkcore.png)
+![NorthwindWebApps: EntityFramework Core](Pictures/northwind-webapi-entityframeworkcore.png)
 
 15. Проанализируйте зависимости:
 
-![NorthwindWebApps: 3 interfaces](northwindapiapp-three-interfaces.png)
+![NorthwindWebApps: 3 interfaces](Pictures/northwindapiapp-three-interfaces.png)
 
 16. Добавьте документацию для методов Web API. См. [Use web API conventions](https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/conventions).
 
@@ -112,11 +112,11 @@ services.AddScoped((service) =>
 
 services.AddTransient<DataAccess.NorthwindDataAccessFactory, DataAccess.SqlServerDataAccessFactory>();
 ```
-> Класс SqlConnection доступен в двух пространствах имен - System.Data и Microsoft.Data. Используйте класс System.Data.SqlConnection. Также, возможно использование пространства Microsoft.Data, однако в этом случае все другие классы проекта тоже должны использовать пространство Microsoft.Data вместо System.Data. См. [сообщение от vysotnikolay](https://github.com/epam-dotnet-lab/northwind-apps/issues/20). Также см. блог [Introducing the new Microsoft.Data.SqlClient](https://devblogs.microsoft.com/dotnet/introducing-the-new-microsoftdatasqlclient).
+> Класс SqlConnection доступен в двух пространствах имен - System.Data и Microsoft.Data. Используйте класс System.Data.SqlConnection. Также, возможно использование пространства Microsoft.Data, однако в этом случае все другие классы проекта тоже должны использовать пространство Microsoft.Data вместо System.Data. Также см. блог [Introducing the new Microsoft.Data.SqlClient](https://devblogs.microsoft.com/dotnet/introducing-the-new-microsoftdatasqlclient).
 
 3. Добавьте новую библиотеку _Northwind.Services.DataAccess_.
 
-![NorthwindWebApps: DAO](northwindapiapp-dao.png)
+![NorthwindWebApps: DAO](Pictures/northwindapiapp-dao.png)
 
 4. В _Northwind.Services.DataAccess_ создайте новый сервис _ProductManagementDataAccessService_, который должен реализовывать интерфейсы _IProductManagementService_. Сервис должен использовать зависимость на _NorthwindDataAccessFactory_, чтобы получать данные из БД Northwind. Добавьте реализацию методов сервиса.
 
@@ -128,7 +128,7 @@ services.AddTransient<DataAccess.NorthwindDataAccessFactory, DataAccess.SqlServe
 
 8. Создайте новую библиотеку _Northwind.DataAccess.SqlServer_, отредактируйте проекты, чтобы изменить пакеты и ссылки на связанные проекты.
 
-![NorthwindWebApps: Northwind.DataAccess.SqlServer](northwindapiapp-dao-sqlserver.png)
+![NorthwindWebApps: Northwind.DataAccess.SqlServer](Pictures/northwindapiapp-dao-sqlserver.png)
 
 9. Перенесите код классов, которые отвечают за работу с БД MS SQL в _Northwind.DataAccess.SqlServer_.
 
@@ -145,11 +145,11 @@ services.AddTransient<DataAccess.NorthwindDataAccessFactory, DataAccess.SqlServe
 
 | Operation        | HTTP Verb | URI                  | Request body | Response body |
 | ---------------- | --------- | -------------------- | ------------ | ------------- |
-| Create           |           |                      |              |               |
-| Read (all items) |           |                      |              |               |
-| Read (item)      |           |                      |              |               |
-| Update           |           |                      |              |               |
-| Delete           |           |                      |              |               |
+| Create           |   POST        |   api/employees   |   New employee           |    -           |
+| Read (all items) |   GET        |    api/employees   |  -            | Collection of employees              |
+| Read (item)      |   GET        |    api/employees/{id}    |  -            |  Employee with specified id             |
+| Update           |   UPDATE        |   api/employees/{id}     |   New employee           |  -             |
+| Delete           |   DELETE        |   api/employees/{id}      | -             |      -         |
 
 
 3. Добавьте новый контроллер _EmployeesController_, реализуйте методы.

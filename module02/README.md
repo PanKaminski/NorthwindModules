@@ -224,7 +224,6 @@ Console.WriteLine("Press any key to continue.");
 Console.ReadLine();
 ```
 
-
 ### Задание 5. Утилизация потоков в асинхронной модели
 
 Перед выполнением прочтите и выполните примеры:
@@ -285,12 +284,12 @@ foreach (var person in employees)
 
 | Breakpoint | Thread ID   | Thread Managed ID | Thread Name |
 | ---------- | ----------- | ----------------- | ----------- |
-| #1.1       |             |                   |             |
-| #1.2       |             |                   |             |
-| #1.3       |             |                   |             |
-| #2.1       |             |                   |             |
-| #2.2       |             |                   |             |
-| #2.3       |             |                   |             |
+| #1.1       |    13884    |        0          | Main Thread |
+| #1.2       |    24892    |        7          | Worker Thread |
+| #1.3       |    13884    |        1          | Main Thread |
+| #2.1       |    26832    |        1          | Main Thread |
+| #2.2       |    16180    |        8          | Worker Thread |
+| #2.3       |    16180    |        8          | Worker Thread |
 
 В чем разница между двумя подходами для брейкпоинтов #1.3 и #2.3?
 
@@ -340,5 +339,5 @@ WaitHandle.WaitAny(new[] { mre.WaitHandle }); // (3) - Блокировать п
 
 #### Примеры
 
-* [Примеры выполненных заданий](ODataClients).
-* [Пример файла northwind-data-service.edmx](northwind-data-service.edmx).
+* [Примеры выполненных заданий](northwind-applications/northwind-apps-module-2/-/tree/help-to-solution/ODataClients).
+* [Пример файла northwind-data-service.edmx](northwind-applications/northwind-apps-module-2/-/tree/help-to-solution/northwind-data-service.edmx).
