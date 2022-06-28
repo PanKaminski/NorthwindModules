@@ -157,7 +157,7 @@ namespace NorthwindApp.FrontEnd.Mvc.Controllers
 
             var employeeId = await this.userManagementService.GetNorthwindEmployeeIdAsync(this.User?.Identity?.Name ?? "");
 
-            return statusCode != 204 || employeeId != article.AuthorId ? 
+            return statusCode != 200 || employeeId != article.AuthorId ? 
                 this.View("Error", this.CreateErrorModel(statusCode)) : this.View(new BlogArticleInputViewModel
             {
                 Title = article.Title,

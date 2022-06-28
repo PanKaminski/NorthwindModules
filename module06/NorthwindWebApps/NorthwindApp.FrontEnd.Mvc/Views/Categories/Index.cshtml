@@ -3,8 +3,21 @@
     ViewData["Title"] = "Categories";
 }
 
-<div class="container">
-    <h1 class="row justify-content-center">Categories</h1>
+<section class="container" id="home">
+    <div class="row pt-2">
+        <div class="col-md-7 mt-5">
+            <h1 class="home__title mb-2">Northwind food</h1>
+            <h2 class="home__subtitle mb-4 py-3">Try the best food of <br> the week</h2>
+            <a href="#categories" class="btn btn-home">View Menu</a>
+        </div>
+        <div class="col-md-5">
+            <img src="~/img/home.png" class="img-fluid" alt="Alternate Text" />
+        </div>
+    </div>
+</section>
+
+<section class="container pt-3">
+    <h1 class="row justify-content-center py-3" id="categories">Categories</h1>
         @if (this.User.IsInRole("Admin") || this.User.IsInRole("Employee"))
         {
             <div class="row justify-content-center mt-3">
@@ -65,5 +78,5 @@
                 }
             }
         </ul>
-</div>
+</section>
 

@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="Platform\" />
+    <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
 </Project>

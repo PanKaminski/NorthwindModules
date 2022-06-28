@@ -19,14 +19,19 @@ namespace NorthwindApiApp.Infrastructure
                 .ReverseMap();
 
             this.CreateMap<Customer, Northwind.Services.Customers.Customer>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CustomerId))
+                .ForMember(dest => dest.Id, opt =>
+                    opt.MapFrom(src => src.CustomerId))
                 .ReverseMap();
 
             this.CreateMap<Northwind.Services.EntityFrameworkCore.Blogging.Entities.BlogArticle, BlogArticle>()
-                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.EmployeeId))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Content))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Content))
-                .ForMember(dest => dest.Posted, opt => opt.MapFrom(src => src.PublicationDate.ToString("O")))
+                .ForMember(dest => dest.AuthorId, opt =>
+                    opt.MapFrom(src => src.EmployeeId))
+                .ForMember(dest => dest.Text, opt =>
+                    opt.MapFrom(src => src.Content))
+                .ForMember(dest => dest.Text, opt =>
+                    opt.MapFrom(src => src.Content))
+                .ForMember(dest => dest.Posted, opt =>
+                    opt.MapFrom(src => src.PublicationDate.ToString("O")))
                 .ReverseMap();
 
             this.CreateMap<Northwind.Services.EntityFrameworkCore.Blogging.Entities.BlogComment, BlogComment>()
